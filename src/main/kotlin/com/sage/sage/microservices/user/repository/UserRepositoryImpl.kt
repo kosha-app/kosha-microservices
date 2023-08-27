@@ -7,7 +7,9 @@ import com.azure.core.util.polling.LongRunningOperationStatus
 import com.azure.core.util.polling.PollResponse
 import com.azure.core.util.polling.SyncPoller
 import com.azure.cosmos.models.CosmosItemRequestOptions
+import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.api.core.ApiFuture
 import com.google.cloud.firestore.DocumentReference
 import com.google.cloud.firestore.WriteResult
@@ -19,6 +21,7 @@ import com.sage.sage.microservices.device.repository.DevicesDatabaseConstants.DA
 import com.sage.sage.microservices.user.model.UserV2
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.DeviceModel
+import com.sage.sage.microservices.user.model.response.DeviceModelV2
 import com.sage.sage.microservices.user.repository.UserDatabaseConstant.DATABASE_COLLECTION
 import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_EMAIL
 import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_NAME
@@ -36,29 +39,54 @@ class UserRepositoryImpl(
     private val azureInitializer: AzureInitializer
 ) : UserRepository {
 
-    override fun createV2(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?> {
+    val profileUserKey = "profile"
+    val deviceUserKey = "device"
+
+    override fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?> {
         userRegistrationRequest.otp = generateSixDigitOTP()
+        userRegistrationRequest.userKey = profileUserKey
         userRegistrationRequest.isVerified = false
-        val response = azureInitializer.container?.createItem(
+        val response = azureInitializer.userContainer?.createItem(
             userRegistrationRequest,
-            PartitionKey(userRegistrationRequest.partitionKey),
+            PartitionKey(userRegistrationRequest.userKey),
             CosmosItemRequestOptions()
+        )
+
+        createDevice(DeviceModelV2(
+            userRegistrationRequest.devices[0].deviceId,
+            deviceUserKey,
+            true,
+            userRegistrationRequest.id)
         )
 
         return Pair(response?.statusCode, userRegistrationRequest.otp)
     }
 
-    override fun createDevice(deviceModel: DeviceModel): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_DEVICES_COLLECTION).document(deviceModel.deviceId)
-        val data: MutableMap<String, Any> = HashMap()
+    override fun createDevice(deviceModel: DeviceModelV2): String {
+       val response = azureInitializer.userContainer?.createItem(
+            deviceModel,
+            PartitionKey(deviceModel.userKey),
+            CosmosItemRequestOptions()
+        )
 
-        data["isLoggedIn"] = deviceModel.isLoggedIn
-        data["userUsername"] = deviceModel.userUsername
-
-        val result: ApiFuture<WriteResult> = docRef.set(data)
-        return result.get().updateTime.toString()
+        return  response?.statusCode.toString()
     }
+
+    override fun addDevice(username: String, deviceModel: DeviceModel): Int? {
+        val user = getByUsername(username)
+        val devices = ArrayList<DeviceModel>()
+        user?.devices?.let { devices.addAll(it) }
+        devices.add(deviceModel)
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/devices", devices as List<DeviceModel>), UserV2::class.java
+        )
+
+        return response?.statusCode
+    }
+
 
     override fun sendOtp(email: String, otp: String) {
         println("Email send started")
@@ -85,22 +113,22 @@ class UserRepositoryImpl(
         }
     }
 
-//    override fun otpVerification(username: String, request: UserVerificationRequest): Boolean {
-//        val user = getByUsername(username)
-//        val result: Boolean
-//        if (user != null) {
-//            if (user.otp == request.otp) {
-//                result = true
-//                updateVerification(username, UserUpdateVerificationRequest(true))
-//            } else {
-//                result = false
-//            }
-//        } else {
-//            result = false
-//        }
-//
-//        return result
-//    }
+    override fun otpVerification(username: String, request: UserVerificationRequest): Boolean {
+        val user = getByUsername(username)
+        val result: Boolean
+        if (user != null) {
+            if (user.otp == request.otp) {
+                result = true
+                updateVerification(username, true)
+            } else {
+                result = false
+            }
+        } else {
+            result = false
+        }
+
+        return result
+    }
 
     private fun generateSixDigitOTP(): String {
         val otpLength = 6
@@ -114,16 +142,10 @@ class UserRepositoryImpl(
         return otpBuilder.toString()
     }
 
-    private fun updateOtp(username: String) {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        docRef.update(USER_DATABASE_OTP, "null")
-    }
-
-    override fun getByUsernameV2(username: String): UserV2? {
-        return azureInitializer.container?.readItem(
+    override fun getByUsername(username: String): UserV2? {
+        return azureInitializer.userContainer?.readItem(
             username,
-            PartitionKey(username),
+            PartitionKey(profileUserKey),
             UserV2::class.java
         )?.item
     }
@@ -143,14 +165,17 @@ class UserRepositoryImpl(
     }
 
     private fun updateVerification(
-        username: String, userUpdateVerificationRequest: UserUpdateVerificationRequest
+        username: String, isVerified: Boolean
     ): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        val future = docRef.update(USER_DATABASE_VERIFICATION, userUpdateVerificationRequest.newVerification)
-        updateOtp(username)
-        val result: WriteResult = future.get()
-        return result.toString()
+       val response = azureInitializer.userContainer?.patchItem(
+           username,
+           PartitionKey(username),
+           CosmosPatchOperations.create()
+               .replace("/verified", isVerified)
+               .replace("/otp", ""), UserV2::class.java
+       )
+
+        return response?.statusCode.toString()
     }
 
     override fun updateSurname(username: String, userUpdateNameRequest: UserUpdateSurnameRequest): String {

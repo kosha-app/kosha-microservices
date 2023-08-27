@@ -18,4 +18,9 @@ class DeviceController( private val deviceService: DeviceService) {
        return deviceService.checkDevice(deviceId)
     }
 
+    @GetMapping("/checkdeviceV2/{deviceId}")
+    fun checkDeviceV2(@PathVariable deviceId: String): ResponseEntity<CheckDeviceResponse> {
+        return deviceService.checkDeviceV2(deviceId)
+    }
+
 }

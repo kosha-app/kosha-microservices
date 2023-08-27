@@ -38,15 +38,15 @@ class User(
 
 class UserV2(
     @JsonProperty("id") val id: String,
-    @JsonProperty("partitionKey") val partitionKey: String,
+    @JsonProperty("userKey") val partitionKey: String,
     @JsonProperty("name") val name: String,
     @JsonProperty("surname") val surname: String,
     @JsonProperty("password") val password: String,
     @JsonProperty("email") val email: String,
     @JsonProperty("cellNumber") val cellNumber: String,
-    @JsonProperty("devices") val devices: List<DeviceModelV2>
-//    val isVerified: Boolean?,
-//    val otp: String?
+    @JsonProperty("devices") val devices: List<DeviceModel>,
+    @JsonProperty("isVerified") val isVerified: Boolean?,
+    @JsonProperty("otp") val otp: String?
 )
 
 

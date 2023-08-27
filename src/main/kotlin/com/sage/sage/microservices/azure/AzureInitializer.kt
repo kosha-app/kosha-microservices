@@ -5,6 +5,7 @@ import com.azure.communication.email.EmailClientBuilder
 import com.azure.cosmos.*
 import com.azure.cosmos.models.CosmosContainerProperties
 import com.azure.cosmos.models.CosmosContainerResponse
+import com.azure.cosmos.models.PartitionKeyDefinition
 import org.springframework.stereotype.Component
 
 
@@ -13,13 +14,15 @@ class AzureInitializer {
 
     private lateinit var client: CosmosClient
 
-    var database: CosmosDatabase? = null
-    var container: CosmosContainer? = null
+    private var database: CosmosDatabase? = null
+    var userContainer: CosmosContainer? = null
+    var albumContainer: CosmosContainer? = null
     var emailClient: EmailClient? = null
 
-    private val containerName = "Items"
+    private val usersContainerName = "users"
+    private val albumContainerName = "albums"
 
-    private val userDatabaseName = "users"
+    private val userDatabaseName = "KoshaDB"
 
     init{
         try {
@@ -66,13 +69,16 @@ class AzureInitializer {
 
     @Throws(java.lang.Exception::class)
     private fun createContainerIfNotExists() {
-        println("Create container $containerName if not exists.")
+        println("Create container $usersContainerName if not exists.")
+        println("Create container $albumContainerName if not exists.")
 
         //  Create container if not exists
-        val containerProperties = CosmosContainerProperties(containerName, "/partitionKey")
-        val containerResponse: CosmosContainerResponse =
-            database!!.createContainerIfNotExists(containerProperties)
-        container = database!!.getContainer(containerResponse.properties.id)
+        val userContainerProperties = CosmosContainerProperties(usersContainerName, "/userKey")
+        val albumContainerProperties = CosmosContainerProperties(albumContainerName, "/albumKey")
+        val userContainerResponse: CosmosContainerResponse = database!!.createContainerIfNotExists(userContainerProperties)
+        val albumContainerResponse: CosmosContainerResponse = database!!.createContainerIfNotExists(albumContainerProperties)
+        userContainer = database!!.getContainer(userContainerResponse.properties.id)
+        albumContainer = database!!.getContainer(albumContainerResponse.properties.id)
         println("Checking container completed!\n")
     }
 

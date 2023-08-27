@@ -15,18 +15,18 @@ import java.util.concurrent.ExecutionException
 class UserController(private val userService: UserService)   {
     @PostMapping("/register")
     fun createUseV2r( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
-        return userService.createV2(userRegistrationRequest)
+        return userService.create(userRegistrationRequest)
     }
 
     @PostMapping("/signin")
     fun signUserInV2(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
-        return userService.signUserInV2(userSignInRequest)
+        return userService.signUserIn(userSignInRequest)
     }
 
-//    @PutMapping("/verification/{username}")
-//    fun otpVerification(@PathVariable username: String, @RequestBody request: UserVerificationRequest): ResponseEntity<String>{
-//        return userService.otpVerification(username, request)
-//    }
+    @PutMapping("/verification/{username}")
+    fun otpVerification(@PathVariable username: String, @RequestBody request: UserVerificationRequest): ResponseEntity<String>{
+        return userService.otpVerification(username, request)
+    }
 
     @PutMapping("/update/name/{username}")
     fun updateName( @PathVariable username: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): String {

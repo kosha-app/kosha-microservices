@@ -1,5 +1,6 @@
 package com.sage.sage.microservices.user.model.request
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.cloud.firestore.annotation.DocumentId
 
 data class UserUpdateNameRequest(
@@ -23,5 +24,5 @@ class UserUpdateVerificationRequest(
 )
 
 class UserVerificationRequest(
-        val otp: String
+        @JsonProperty("otp") val otp: String
 )
