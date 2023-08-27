@@ -30,7 +30,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+      - uses: elstudio/action-install-azure-cli@v1
       - name: deploy to production with artifact
         uses: azure/spring-apps-deploy@v1
         with:
