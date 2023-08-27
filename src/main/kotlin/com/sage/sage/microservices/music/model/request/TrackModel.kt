@@ -1,6 +1,8 @@
 package com.sage.sage.microservices.music.model.request
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.cloud.firestore.DocumentSnapshot
+import java.util.UUID
 
 class TrackResponse(
     val trackId: String?,
@@ -17,5 +19,16 @@ class TrackResponse(
                 trackUrl = getString("url")
             )
         }
+    }
+}
+
+class TrackModel(
+    @JsonProperty("id") var id: String?,
+    @JsonProperty("trackName") val trackName: String?,
+    @JsonProperty("trackArtist") val trackArtist: String?,
+    @JsonProperty("trackUrl") val trackUrl: String?
+){
+    init {
+        id = UUID.randomUUID().toString()
     }
 }
