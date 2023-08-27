@@ -9,3 +9,7 @@ az spring app deploy \
 --name sage \
 --artifact-path sage-microservices-0.0.1-SNAPSHOT.jar
 
+
+# api url
+
+https://sage.redocean-171801c3.centralus.azurecontainerapps.io

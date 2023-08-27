@@ -5,9 +5,9 @@ env:
   AZURE_SUBSCRIPTION: 60787d8b-bac2-4938-9709-6a9ca5eedca7
 
 jobs:
-  deploy_to_production:
+  build-services:
     runs-on: ubuntu-latest
-    name: deploy to production with artifact
+    name: Build With Java 17
     steps:
       - name: Checkout GitHub Action
         uses: actions/checkout@v2
@@ -25,17 +25,3 @@ jobs:
       - name: Build with Gradle
         run: |
           ./gradlew clean build -x test
-      - uses: elstudio/action-install-azure-cli@v1
-      - name: Login via Azure CLI
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: deploy to production with artifact
-        uses: azure/spring-apps-deploy@v1
-        with:
-          azure-subscription: ${{ env.AZURE_SUBSCRIPTION }}
-          action: Deploy
-          service-name: gelo-corp-m
-          app-name: sage
-          use-staging-deployment: false
-          package: ${{ env.ASC_PACKAGE_PATH }}/**/*.jar
