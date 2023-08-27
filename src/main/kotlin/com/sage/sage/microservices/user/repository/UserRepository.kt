@@ -1,6 +1,7 @@
 package com.sage.sage.microservices.user.repository
 
 import com.sage.sage.microservices.user.model.User
+import com.sage.sage.microservices.user.model.UserV2
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.request.*
 import org.springframework.stereotype.Repository
@@ -8,15 +9,15 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository {
 
-    fun create(userRegistrationRequest: UserRegistrationRequest): String
+    fun createV2(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?>
+
+    fun sendOtp(email: String, otp: String)
 
     fun createDevice(deviceModel: DeviceModel): String
 
-    fun getByUsername(username: String): User?
+    fun getByUsernameV2(username: String): UserV2?
 
     fun deleteByUsername(username: String): String
-
-    fun otpVerification(username: String,request: UserVerificationRequest): Boolean
 
     fun updatePassword(username: String, userUpdateNameRequest: UserUpdatePasswordRequest): String
 

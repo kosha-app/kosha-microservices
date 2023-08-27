@@ -1,11 +1,15 @@
 package com.sage.sage.microservices.user.service
 
+import com.azure.core.exception.AzureException
+import com.azure.cosmos.CosmosException
+import com.azure.cosmos.implementation.ConflictException
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
@@ -14,55 +18,45 @@ class UserService(
     private val userRepository: UserRepository
 ) {
 
-
-    fun create(userRegistrationRequest: UserRegistrationRequest): ResponseEntity<String> {
-
-        val checkUsername = userRepository.getByUsername(userRegistrationRequest.username)
-        println("Sageem UserName :  ${checkUsername?.username}")
-
-        return if (checkUsername != null) {
-            ResponseEntity("Username ${userRegistrationRequest.username} already exists", HttpStatus.CONFLICT)
-        } else {
-            val response = userRepository.create(userRegistrationRequest)
-            if (response == "Error") {
-                ResponseEntity("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR)
+    fun createV2(userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
+        return try {
+            val response = userRepository.createV2(userRegistrationRequest)
+            println("Sage Create User V2 Response Code: ${response.first}")
+            userRepository.sendOtp(userRegistrationRequest.email, response.second.toString())
+            ResponseEntity("User Successfully created", HttpStatus.CREATED)
+        } catch (e: CosmosException) {
+            if (e.statusCode == HttpStatus.CONFLICT.value()) {
+                ResponseEntity("Username already exists", HttpStatus.CONFLICT)
             } else {
-                ResponseEntity("$response \nUser Registration Success", HttpStatus.CREATED)
+                ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
             }
         }
     }
 
-    fun otpVerification(username: String, request: UserVerificationRequest): ResponseEntity<String> {
-        val result = userRepository.otpVerification(username, request)
-        return if (result) {
-            ResponseEntity("User Verified", HttpStatus.OK)
-        } else {
-            ResponseEntity("OTP does not match ${request.otp}", HttpStatus.NOT_ACCEPTABLE)
-        }
-    }
+//    fun otpVerification(username: String, request: UserVerificationRequest): ResponseEntity<String> {
+//        val result = userRepository.otpVerification(username, request)
+//        return if (result) {
+//            ResponseEntity("User Verified", HttpStatus.OK)
+//        } else {
+//            ResponseEntity("OTP does not match ${request.otp}", HttpStatus.NOT_ACCEPTABLE)
+//        }
+//    }
 
-    fun signUserIn(userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse> {
-        val user = userRepository.getByUsername(userSignInRequest.username)
-        if (user != null) {
-            return if (userSignInRequest.password == user.password) {
-                userRepository.createDevice(
-                    DeviceModel(
-                        deviceId = userSignInRequest.deviceId,
-                        isLoggedIn = true,
-                        userUsername = userSignInRequest.username,
-                    )
-                )
-                ResponseEntity(SignInResponse( message = "User Successfully Signed In"), HttpStatus.OK)
-            } else {
-                ResponseEntity(SignInResponse( message = "Password Incorrect"), HttpStatus.CONFLICT)
+    fun signUserInV2(userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse> {
+        return try {
+            val user = userRepository.getByUsernameV2(userSignInRequest.username)
+            if (user?.password == userSignInRequest.password){
+                ResponseEntity(SignInResponse(message = "User Successfully Signed In"), HttpStatus.OK)
+            }else{
+                ResponseEntity(SignInResponse(message = "Password Incorrect"), HttpStatus.CONFLICT)
             }
-        } else {
-            return  ResponseEntity(SignInResponse( message = "User does not exist"), HttpStatus.NOT_FOUND)
+        }catch (e: CosmosException){
+            if (e.statusCode == HttpStatus.NOT_FOUND.value()){
+                ResponseEntity(SignInResponse(message = "User with username ${userSignInRequest.username} does not exist"), HttpStatus.NOT_FOUND)
+            }else{
+                ResponseEntity(SignInResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+            }
         }
-    }
-
-    fun getByUsername(username: String): User? {
-        return userRepository.getByUsername(username)
     }
 
     fun updateName(username: String, userUpdateNameRequest: UserUpdateNameRequest): String {
