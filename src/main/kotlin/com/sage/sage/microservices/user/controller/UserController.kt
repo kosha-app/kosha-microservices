@@ -13,26 +13,20 @@ import java.util.concurrent.ExecutionException
 @RestController
 @RequestMapping("/user")
 class UserController(private val userService: UserService)   {
-
     @PostMapping("/register")
-    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequest): ResponseEntity<String> {
-        return userService.create(userRegistrationRequest)
+    fun createUseV2r( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
+        return userService.createV2(userRegistrationRequest)
     }
 
     @PostMapping("/signin")
-    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
-        return userService.signUserIn(userSignInRequest)
+    fun signUserInV2(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
+        return userService.signUserInV2(userSignInRequest)
     }
 
-    @PutMapping("/verification/{username}")
-    fun otpVerification(@PathVariable username: String, @RequestBody request: UserVerificationRequest): ResponseEntity<String>{
-        return userService.otpVerification(username, request)
-    }
-
-    @GetMapping("/get/{username}")
-    fun getUser( @PathVariable username: String): User? {
-        return userService.getByUsername(username)
-    }
+//    @PutMapping("/verification/{username}")
+//    fun otpVerification(@PathVariable username: String, @RequestBody request: UserVerificationRequest): ResponseEntity<String>{
+//        return userService.otpVerification(username, request)
+//    }
 
     @PutMapping("/update/name/{username}")
     fun updateName( @PathVariable username: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): String {

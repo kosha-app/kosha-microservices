@@ -22,8 +22,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.springframework.cloud:spring-cloud-function-adapter-azure:4.0.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    implementation("com.azure:azure-cosmos:4.49.0")
+    implementation("com.azure:azure-communication-email:1.0.2")
+
 
     implementation("com.google.firebase:firebase-admin:9.2.0")
 
