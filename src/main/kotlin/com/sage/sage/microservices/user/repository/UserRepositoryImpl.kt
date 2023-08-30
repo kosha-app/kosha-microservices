@@ -169,7 +169,7 @@ class UserRepositoryImpl(
     ): String {
        val response = azureInitializer.userContainer?.patchItem(
            username,
-           PartitionKey(username),
+           PartitionKey(profileUserKey),
            CosmosPatchOperations.create()
                .replace("/verified", isVerified)
                .replace("/otp", ""), UserV2::class.java

@@ -1,8 +1,9 @@
-name: AzureSpringApps
-on: push
-env:
-  ASC_PACKAGE_PATH: ${{ github.workspace }}
-  AZURE_SUBSCRIPTION: 60787d8b-bac2-4938-9709-6a9ca5eedca7
+name: Java Build
+on:
+  push:
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build-services:
