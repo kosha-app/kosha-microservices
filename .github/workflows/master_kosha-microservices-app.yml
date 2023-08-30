@@ -6,7 +6,7 @@ name: Build and deploy JAR app to Azure App - kosha-microservices-app
 on:
   push:
     branches:
-      - master
+      - deploy-to-azure
   workflow_dispatch:
 
 jobs:
