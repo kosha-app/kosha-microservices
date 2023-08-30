@@ -1,25 +1,55 @@
-name: Qodana
+name: IntelliJ Agent - Gradle Test
+
 on:
   workflow_dispatch:
   pull_request:
   push:
     branches:
-      - master
+      - main
 #      - 'releases/*'
 
 jobs:
-  qodana:
+  build:
+
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      checks: write
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
-          fetch-depth: 0  # a full history is required for pull request analysis
-      - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2023.2
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+
+      - name: Grant execute permission to Gradlew
+        run: |
+          chmod +x ./gradlew
+
+      - name: Validate Gradle Wrapper
+        run: ./gradlew --version
+
+      - name: Run Tests
+        run: ./gradlew test
+
+      - name: Create coverage-data directory and copy contents
+        run: |
+          gradle/.qodana/code-coverage
+          cp -R gradle/build/kover/bin-reports/* gradle/.qodana/code-coverage/
+
+      - name: Archive coverage data
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-coverage-data.zip
+          path: gradle/.qodana/code-coverage
+
+      - name: Qodana Scan
+        uses: JetBrains/qodana-action@main
         env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN}}
+        with:
+          args: "-i,gradle,--linter,jetbrains/qodana-jvm:2023.2-eap"
+          pr-mode: false
