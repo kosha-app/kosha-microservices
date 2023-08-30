@@ -29,10 +29,10 @@ jobs:
         run: docker login -u ${{secrets.DOCKER_USERNAME}} -p ${{secrets.DOCKER_PASSWORD}}
 
       - name: Build docker image
-        run: docker build -t kosha10111/springboot-microservies .
+        run: docker build -t kosha10111/springboot-microservices .
 
       - name: Publish image to docker hub
-        run: docker push kosha10111/springboot-microservies:latest
+        run: docker push kosha10111/springboot-microservices:latest
 
   deploy:
     needs: build
@@ -40,10 +40,10 @@ jobs:
     steps:
 
       - name: Pull Image from docker hub
-        run: docker pull kosha10111/springboot-microservies:latest
+        run: docker pull kosha10111/springboot-microservices:latest
 
       - name: Delete old container
-        run: docker rm -f springboot-microservies
+        run: docker rm -f sspringboot-microservices
 
       - name: Run docker container
-        run: docker run -d -p 8080:8080 --name springboot-microservies kosha10111/springboot-microservies
+        run: docker run -d -p 8080:8080 --name springboot-microservies kosha10111/springboot-microservices
