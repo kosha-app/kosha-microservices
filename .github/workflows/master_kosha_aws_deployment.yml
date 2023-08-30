@@ -38,7 +38,7 @@ jobs:
         run: docker build -t kosha10111/springboot-microservices .
 
       - name: Publish image to docker hub
-        run: docker push kosha10111/springboot-microservices:latest
+        run: docker push kosha10111/springboot-microservices
 
   deploy:
     needs: build
@@ -46,7 +46,7 @@ jobs:
     steps:
 
       - name: Pull Image from docker hub
-        run: docker pull kosha10111/springboot-microservices:latest
+        run: docker pull kosha10111/springboot-microservices
 
       - name: Delete old container
         run: docker rm -f sspringboot-microservices
