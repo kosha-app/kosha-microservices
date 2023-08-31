@@ -33,16 +33,16 @@ jobs:
       - name: Run Tests
         run: ./gradlew test
 
-      - name: Create coverage-data directory and copy contents
-        run: |
-          mkdir -p gradle/.qodana/code-coverage
-          cp -R build/kover/bin-reports/* gradle/.qodana/code-coverage/
+#      - name: Create coverage-data directory and copy contents
+#        run: |
+#          mkdir -p gradle/.qodana/code-coverage
+#          cp -R build/kover/bin-reports/* gradle/.qodana/code-coverage/
 
       - name: Archive coverage data
         uses: actions/upload-artifact@v2
         with:
           name: gradle-coverage-data.zip
-          path: /gradle/.qodana/code-coverage
+          path: build/kover/bin-reports/
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@main
