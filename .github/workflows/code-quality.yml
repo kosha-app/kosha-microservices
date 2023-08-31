@@ -29,11 +29,11 @@ jobs:
 
       - name: Validate Gradle Wrapper
         run: ./gradlew --version
-        working-directory: gradle
+        working-directory: /
 
       - name: Run Tests
         run: ./gradlew test
-        working-directory: gradle
+        working-directory: /
 
       - name: Create coverage-data directory and copy contents
         run: |
