@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/device")
 class DeviceController( private val deviceService: DeviceService) {
 
+
+
     @GetMapping("/checkdevice/{deviceId}")
     fun checkDevice(@PathVariable deviceId: String): ResponseEntity<CheckDeviceResponse> {
        return deviceService.checkDevice(deviceId)
