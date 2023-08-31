@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.1.3"
     id("io.spring.dependency-management") version "1.1.3"
     id("org.jetbrains.qodana") version "0.1.13"
+    id("org.jetbrains.kotlinx.kover") version "0.7.3"
     kotlin("jvm") version "1.8.22"
     kotlin("plugin.spring") version "1.8.22"
 }
