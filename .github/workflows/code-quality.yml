@@ -5,7 +5,7 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - master
 #      - 'releases/*'
 
 jobs:
@@ -23,15 +23,17 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
-            java-version: '17'
-            distribution: 'adopt'
-            cache: 'gradle'
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'gradle'
 
       - name: Validate Gradle Wrapper
         run: ./gradlew --version
+        working-directory: gradle
 
       - name: Run Tests
         run: ./gradlew test
+        working-directory: gradle
 
       - name: Create coverage-data directory and copy contents
         run: |
@@ -42,12 +44,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: gradle-coverage-data.zip
-          path: gradle/.qodana/code-coverage
+          path: /gradle/.qodana/code-coverage
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@main
         env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN}}
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
         with:
           args: "-i,gradle,--linter,jetbrains/qodana-jvm:2023.2-eap"
           pr-mode: false
