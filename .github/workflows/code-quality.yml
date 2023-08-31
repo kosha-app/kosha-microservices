@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: gradle-coverage-data.zip
-          path: build/kover/bin-reports/
+          path: build/kover/
 
       - name: Qodana Scan
         uses: JetBrains/qodana-action@main
