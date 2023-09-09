@@ -9,27 +9,11 @@ import com.azure.core.util.polling.SyncPoller
 import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.google.api.core.ApiFuture
-import com.google.cloud.firestore.DocumentReference
-import com.google.cloud.firestore.WriteResult
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.UserRecord
-import com.google.firebase.cloud.FirestoreClient
 import com.sage.sage.microservices.azure.AzureInitializer
-import com.sage.sage.microservices.device.repository.DevicesDatabaseConstants.DATABASE_DEVICES_COLLECTION
 import com.sage.sage.microservices.user.model.UserV2
 import com.sage.sage.microservices.user.model.request.*
-import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceModelV2
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.DATABASE_COLLECTION
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_EMAIL
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_NAME
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_OTP
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_PASSWORD
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_SURNAME
-import com.sage.sage.microservices.user.repository.UserDatabaseConstant.USER_DATABASE_VERIFICATION
-import org.apache.http.client.HttpResponseException
+import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
 import kotlin.random.Random
 
@@ -72,16 +56,16 @@ class UserRepositoryImpl(
         return  response?.statusCode.toString()
     }
 
-    override fun addDevice(username: String, deviceModel: DeviceModel): Int? {
+    override fun addDevice(username: String, deviceModel: DeviceRequest): Int? {
         val user = getByUsername(username)
-        val devices = ArrayList<DeviceModel>()
+        val devices = ArrayList<DeviceRequest>()
         user?.devices?.let { devices.addAll(it) }
         devices.add(deviceModel)
         val response = azureInitializer.userContainer?.patchItem(
             username,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/devices", devices as List<DeviceModel>), UserV2::class.java
+                .replace("/devices", devices as List<DeviceRequest>), UserV2::class.java
         )
 
         return response?.statusCode
@@ -119,7 +103,7 @@ class UserRepositoryImpl(
         if (user != null) {
             if (user.otp == request.otp) {
                 result = true
-                updateVerification(username, true)
+                updateVerification(username)
             } else {
                 result = false
             }
@@ -150,56 +134,68 @@ class UserRepositoryImpl(
         )?.item
     }
 
-    override fun deleteByUsername(username: String): String {
-        val database = FirestoreClient.getFirestore()
-        val writeResult: ApiFuture<WriteResult> = database.collection(DATABASE_COLLECTION).document(username).delete()
-        return writeResult.get().updateTime.toString()
+    override fun deleteByUsername(username: String): Int? {
+       return azureInitializer.userContainer?.deleteItem(
+            username,
+            PartitionKey(profileUserKey),
+           CosmosItemRequestOptions()
+        )?.statusCode
     }
 
     override fun updateName(username: String, userUpdateNameRequest: UserUpdateNameRequest): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        val future = docRef.update(USER_DATABASE_NAME, userUpdateNameRequest.newName)
-        val result: WriteResult = future.get()
-        return result.toString()
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/name", userUpdateNameRequest.newName), UserV2::class.java
+        )
+
+        return response?.statusCode.toString()
     }
 
-    private fun updateVerification(
-        username: String, isVerified: Boolean
-    ): String {
+    private fun updateVerification(username: String): String {
        val response = azureInitializer.userContainer?.patchItem(
            username,
            PartitionKey(profileUserKey),
            CosmosPatchOperations.create()
-               .replace("/verified", isVerified)
+               .replace("/verified", true)
                .replace("/otp", ""), UserV2::class.java
        )
 
         return response?.statusCode.toString()
     }
 
-    override fun updateSurname(username: String, userUpdateNameRequest: UserUpdateSurnameRequest): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        val future = docRef.update(USER_DATABASE_SURNAME, userUpdateNameRequest.newSurname)
-        val result: WriteResult = future.get()
-        return result.toString()
+    override fun updateSurname(username: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): String {
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/surname", userUpdateSurnameRequest.newSurname), UserV2::class.java
+        )
+
+        return response?.statusCode.toString()
     }
 
-    override fun updateEmail(username: String, userUpdateNameRequest: UserUpdateEmailRequest): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        val future = docRef.update(USER_DATABASE_EMAIL, userUpdateNameRequest.newEmail)
-        val result: WriteResult = future.get()
-        return result.toString()
+    override fun updateEmail(username: String, userUpdateEmailRequest: UserUpdateEmailRequest): String {
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/email", userUpdateEmailRequest.newEmail), UserV2::class.java
+        )
+
+        return response?.statusCode.toString()
     }
 
-    override fun updatePassword(username: String, userUpdateNameRequest: UserUpdatePasswordRequest): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_COLLECTION).document(username)
-        val future = docRef.update(USER_DATABASE_PASSWORD, userUpdateNameRequest.newPassword)
-        val result: WriteResult = future.get()
-        return result.toString()
+    override fun updatePassword(username: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): String {
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/password", userUpdatePasswordRequest.newPassword), UserV2::class.java
+        )
+
+        return response?.statusCode.toString()
     }
 
 
