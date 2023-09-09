@@ -71,6 +71,12 @@ class UserRepositoryImpl(
         return response?.statusCode
     }
 
+    override fun resendOtp(email: String): String {
+        val otp = generateSixDigitOTP()
+        sendOtp(email, otp)
+        return otp
+    }
+
 
     override fun sendOtp(email: String, otp: String) {
         println("Email send started")
@@ -80,7 +86,6 @@ class UserRepositoryImpl(
             .setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
             .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
 
-        try {
             val poller: SyncPoller<EmailSendResult?, EmailSendResult> = azureInitializer.emailClient!!.beginSend(message, null)
             var pollResponse: PollResponse<EmailSendResult?>? = null
             while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
@@ -92,9 +97,6 @@ class UserRepositoryImpl(
             } else {
                 throw RuntimeException(poller.finalResult.error.message)
             }
-        } catch (exception: Exception) {
-            println(exception.message)
-        }
     }
 
     override fun otpVerification(username: String, request: UserVerificationRequest): Boolean {
@@ -161,6 +163,17 @@ class UserRepositoryImpl(
                .replace("/verified", true)
                .replace("/otp", ""), UserV2::class.java
        )
+
+        return response?.statusCode.toString()
+    }
+
+    override fun updateOtp(username: String, otp: String): String {
+        val response = azureInitializer.userContainer?.patchItem(
+            username,
+            PartitionKey(profileUserKey),
+            CosmosPatchOperations.create()
+                .replace("/otp", otp), UserV2::class.java
+        )
 
         return response?.statusCode.toString()
     }

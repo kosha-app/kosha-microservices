@@ -13,6 +13,10 @@ interface UserRepository {
 
     fun sendOtp(email: String, otp: String)
 
+    fun resendOtp(email: String): String
+
+    fun updateOtp(username: String, otp: String): String
+
     fun otpVerification(username: String, request: UserVerificationRequest): Boolean
 
     fun createDevice(deviceModel: DeviceModelV2): String
