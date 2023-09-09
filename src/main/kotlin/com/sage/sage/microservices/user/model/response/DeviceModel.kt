@@ -9,6 +9,11 @@ class DeviceModel (
     @JsonProperty("userUsername") val userUsername: String
 )
 
+class DeviceRequest (
+    @JsonProperty("deviceId") val deviceId: String,
+    @JsonProperty("loggedIn") val isLoggedIn: Boolean
+)
+
 class DeviceModelV2 (
     @JsonProperty("id") val id: String,
     @JsonProperty("userKey") val userKey: String?,
