@@ -36,7 +36,7 @@ class UserRegistrationRequestV2(
     val password: String,
     val email: String,
     val cellNumber: String,
-    val device: DeviceRequest,
+    val deviceId: String,
 )
 
 class UserRegistration(
@@ -53,7 +53,7 @@ class UserRegistration(
 ){
     companion object{
         fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
-            val registerDevice = listOf(device)
+            val registerDevice = listOf(DeviceRequest(deviceId = deviceId, isLoggedIn = false))
             val userKey = null
             val isVerified = null
             val otp = null
