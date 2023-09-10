@@ -12,6 +12,7 @@ import com.azure.cosmos.models.PartitionKey
 import com.sage.sage.microservices.azure.AzureInitializer
 import com.sage.sage.microservices.user.model.UserV2
 import com.sage.sage.microservices.user.model.request.*
+import com.sage.sage.microservices.user.model.request.UserRegistration.Companion.toUserRegistration
 import com.sage.sage.microservices.user.model.response.DeviceModelV2
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
@@ -31,13 +32,13 @@ class UserRepositoryImpl(
         userRegistrationRequest.userKey = profileUserKey
         userRegistrationRequest.isVerified = false
         val response = azureInitializer.userContainer?.createItem(
-            userRegistrationRequest,
+            userRegistrationRequest.toUserRegistration(),
             PartitionKey(userRegistrationRequest.userKey),
             CosmosItemRequestOptions()
         )
 
         createDevice(DeviceModelV2(
-            userRegistrationRequest.devices[0].deviceId,
+            userRegistrationRequest.device.deviceId,
             deviceUserKey,
             true,
             userRegistrationRequest.id)

@@ -27,26 +27,7 @@ class UserModel(
     val devices: List<DeviceModel>,
     var isVerified: Boolean?,
     var otp: String?
-){
-    companion object {
-        fun UserRegistrationRequestV2.toUserModel(): UserModel {
-            val deviceModel = listOf( DeviceModel(deviceId = devices[0].deviceId, isLoggedIn = false, userUsername = id))
-
-            return UserModel(
-                id ,
-                userKey,
-                name,
-                surname,
-                password,
-                email,
-                cellNumber,
-                deviceModel,
-                isVerified,
-                otp
-            )
-        }
-    }
-}
+)
 
 class UserRegistrationRequestV2(
     val id: String,
@@ -56,7 +37,38 @@ class UserRegistrationRequestV2(
     val password: String,
     val email: String,
     val cellNumber: String,
-    val devices: List<DeviceRequest>,
+    val device: DeviceRequest,
     var isVerified: Boolean?,
     var otp: String?
 )
+
+class UserRegistration(
+    val id: String,
+    var userKey: String?,
+    val name: String,
+    val surname: String,
+    val password: String,
+    val email: String,
+    val cellNumber: String,
+    val device: List<DeviceRequest>,
+    var isVerified: Boolean?,
+    var otp: String?
+){
+    companion object{
+        fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
+            val registerDevice = listOf(device)
+            return UserRegistration(
+                id ,
+                userKey,
+                name,
+                surname,
+                password,
+                email,
+                cellNumber,
+                registerDevice,
+                isVerified,
+                otp
+            )
+        }
+    }
+}
