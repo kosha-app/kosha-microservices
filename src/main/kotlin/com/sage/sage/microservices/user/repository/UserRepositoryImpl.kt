@@ -39,7 +39,7 @@ class UserRepositoryImpl(
         )
 
         createDevice(DeviceModelV2(
-            user.device[0].deviceId,
+            user.devices[0].deviceId,
             deviceUserKey,
             false,
             user.id)
@@ -88,6 +88,7 @@ class UserRepositoryImpl(
             .setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
             .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
 
+        try {
             val poller: SyncPoller<EmailSendResult?, EmailSendResult> = azureInitializer.emailClient!!.beginSend(message, null)
             var pollResponse: PollResponse<EmailSendResult?>? = null
             while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
@@ -99,6 +100,9 @@ class UserRepositoryImpl(
             } else {
                 throw RuntimeException(poller.finalResult.error.message)
             }
+        } catch (exception: Exception) {
+            println(exception.message)
+        }
     }
 
     override fun otpVerification(username: String, request: UserVerificationRequest): Boolean {

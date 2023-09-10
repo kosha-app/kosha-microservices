@@ -29,7 +29,7 @@ class DeviceService(
             ResponseEntity(
                 CheckDeviceResponse(
                     message = "Device Logged in with user",
-                    loggedIn = true,
+                    loggedIn = result?.isLoggedIn,
                     userUsername = result?.userUsername
                 ), HttpStatus.OK
             )

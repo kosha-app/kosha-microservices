@@ -47,7 +47,7 @@ class UserRegistration(
     val password: String,
     val email: String,
     val cellNumber: String,
-    val device: List<DeviceRequest>,
+    val devices: List<DeviceRequest>,
     var isVerified: Boolean?,
     var otp: String?
 ){

@@ -51,8 +51,6 @@ class UserService(
             ResponseEntity(HttpStatus.OK)
         } catch (e: CosmosException) {
             ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
-        } catch (e: RuntimeException){
-            ResponseEntity(e.message, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
