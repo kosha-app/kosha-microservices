@@ -41,7 +41,7 @@ class UserRepositoryImpl(
         createDevice(DeviceModelV2(
             user.device[0].deviceId,
             deviceUserKey,
-            true,
+            false,
             user.id)
         )
 
