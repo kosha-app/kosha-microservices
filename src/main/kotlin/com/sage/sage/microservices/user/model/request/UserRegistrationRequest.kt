@@ -31,15 +31,12 @@ class UserModel(
 
 class UserRegistrationRequestV2(
     val id: String,
-    var userKey: String?,
     val name: String,
     val surname: String,
     val password: String,
     val email: String,
     val cellNumber: String,
     val device: DeviceRequest,
-    var isVerified: Boolean?,
-    var otp: String?
 )
 
 class UserRegistration(
@@ -57,6 +54,9 @@ class UserRegistration(
     companion object{
         fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
             val registerDevice = listOf(device)
+            val userKey = null
+            val isVerified = null
+            val otp = null
             return UserRegistration(
                 id ,
                 userKey,
