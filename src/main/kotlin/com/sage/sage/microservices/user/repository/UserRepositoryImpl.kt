@@ -28,23 +28,24 @@ class UserRepositoryImpl(
     val deviceUserKey = "device"
 
     override fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?> {
-        userRegistrationRequest.otp = generateSixDigitOTP()
-        userRegistrationRequest.userKey = profileUserKey
-        userRegistrationRequest.isVerified = false
+        val user = userRegistrationRequest.toUserRegistration()
+        user.otp = generateSixDigitOTP()
+        user.userKey = profileUserKey
+        user.isVerified = false
         val response = azureInitializer.userContainer?.createItem(
-            userRegistrationRequest.toUserRegistration(),
-            PartitionKey(userRegistrationRequest.userKey),
+            user,
+            PartitionKey(user.userKey),
             CosmosItemRequestOptions()
         )
 
         createDevice(DeviceModelV2(
-            userRegistrationRequest.device.deviceId,
+            user.device[0].deviceId,
             deviceUserKey,
             true,
-            userRegistrationRequest.id)
+            user.id)
         )
 
-        return Pair(response?.statusCode, userRegistrationRequest.otp)
+        return Pair(response?.statusCode, user.otp)
     }
 
     override fun createDevice(deviceModel: DeviceModelV2): String {
