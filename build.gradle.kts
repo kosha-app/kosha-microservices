@@ -26,6 +26,8 @@ dependencies {
     implementation("com.azure:azure-cosmos:4.49.0")
     implementation("com.azure:azure-communication-email:1.0.2")
 
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
 
     implementation("com.google.firebase:firebase-admin:9.2.0")
 
