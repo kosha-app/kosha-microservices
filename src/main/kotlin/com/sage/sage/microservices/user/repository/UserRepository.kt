@@ -11,8 +11,6 @@ interface UserRepository {
 
     fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?>
 
-    fun checkEmail(email: String): Int?
-
     fun sendOtp(email: String, otp: String)
 
     fun resendOtp(email: String): String

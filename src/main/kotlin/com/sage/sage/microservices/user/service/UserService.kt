@@ -30,9 +30,10 @@ class UserService(
 
     fun checkEmail(email: String): ResponseEntity<String> {
         return try {
-            val response = userRepository.checkEmail(email)
+            val response = userRepository.getByEmail(email)
             if (response == null){
                 ResponseEntity("User with email $email already exists",HttpStatus.CONFLICT)
+
             } else {
                 ResponseEntity(HttpStatus.OK)
             }

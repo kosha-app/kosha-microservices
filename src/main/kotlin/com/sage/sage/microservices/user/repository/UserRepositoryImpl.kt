@@ -48,20 +48,6 @@ class UserRepositoryImpl(
         return Pair(response?.statusCode, user.otp)
     }
 
-    override fun checkEmail(email: String): Int? {
-        val response = azureInitializer.userContainer?.readAllItems(
-            PartitionKey(profileUserKey),
-            User::class.java
-        )
-        var code: Int? = null
-         response?.forEach {
-            if (it.email != email){
-                code = 200
-            }
-        }
-        return code
-    }
-
     override fun createDevice(deviceModel: DeviceModelV2): String {
        val response = azureInitializer.userContainer?.createItem(
             deviceModel,
