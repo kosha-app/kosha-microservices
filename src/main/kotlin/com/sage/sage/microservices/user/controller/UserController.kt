@@ -13,12 +13,17 @@ import java.util.concurrent.ExecutionException
 @RequestMapping("/user")
 class UserController(private val userService: UserService)   {
     @PostMapping("/register")
-    fun createUseV2r( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
+    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
         return userService.create(userRegistrationRequest)
     }
 
+    @PostMapping("/checkemail/{email}")
+    fun checkEmail(@PathVariable email: String): ResponseEntity<String> {
+        return userService.checkEmail(email)
+    }
+
     @PostMapping("/signin")
-    fun signUserInV2(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
+    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
         return userService.signUserIn(userSignInRequest)
     }
 
