@@ -24,16 +24,8 @@ class DeviceRepository(
 ): IDeviceRepository {
 
     @JsonProperty("userKey") val deviceKey = "device"
-    override fun checkDevice(deviceId: String): CheckDeviceResponse? {
-        val database = FirestoreClient.getFirestore()
-        val document: ApiFuture<DocumentSnapshot> = database.collection(DATABASE_DEVICES_COLLECTION).document(deviceId).get()
 
-        val documentSnapshot = document.get()
-
-        return if (documentSnapshot.exists()) documentSnapshot.toCheckDeviceResponse("Device check Successful") else null
-    }
-
-    override fun checkDeviceV2(deviceId: String): DeviceModelV2? {
+    override fun checkDevice(deviceId: String): DeviceModelV2? {
         val response = azureInitializer.userContainer?.readItem(
             deviceId,
             PartitionKey(deviceKey),
@@ -41,14 +33,4 @@ class DeviceRepository(
         )
         return response?.item
     }
-
-    override fun updateDeviceLogIn(deviceId: String, updateLogInRequest: UpdateLogInRequest): String {
-        val database = FirestoreClient.getFirestore()
-        val docRef: DocumentReference = database.collection(DATABASE_DEVICES_COLLECTION).document(deviceId)
-
-        val future = docRef.update(DATABASE_DEVICE_LOGIN, updateLogInRequest.newLoggedIn)
-        val result: WriteResult = future.get()
-        return result.updateTime.toString()
-    }
-
 }

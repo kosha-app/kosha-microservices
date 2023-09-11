@@ -14,27 +14,15 @@ class DeviceService(
     private val repository: IDeviceRepository
 ) {
 
-    fun checkDevice(deviceId: String): ResponseEntity<CheckDeviceResponse> {
-        val result = repository.checkDevice(deviceId)
-        return if (result != null) {
-            ResponseEntity(result, HttpStatus.OK)
-        } else {
-            ResponseEntity(CheckDeviceResponse(message = "Device Not Registered To User"), HttpStatus.CONFLICT)
-        }
-    }
-
-    fun checkDeviceV2(deviceId: String): ResponseEntity<CheckDeviceResponse> {
+    fun checkDevice(deviceId: String): ResponseEntity<String> {
         return try {
-            val result = repository.checkDeviceV2(deviceId)
+            repository.checkDevice(deviceId)
             ResponseEntity(
-                CheckDeviceResponse(
-                    message = "Device Logged in with user",
-                    loggedIn = result?.isLoggedIn,
-                    userUsername = result?.userUsername
-                ), HttpStatus.OK
+                "Device Logged in with user",
+                HttpStatus.OK
             )
         } catch (e: CosmosException) {
-            ResponseEntity(CheckDeviceResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity( e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
         }
 
     }

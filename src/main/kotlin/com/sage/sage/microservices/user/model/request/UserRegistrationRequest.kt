@@ -1,28 +1,18 @@
 package com.sage.sage.microservices.user.model.request
 
-import com.azure.cosmos.models.PartitionKey
 import com.sage.sage.microservices.user.model.response.DeviceModel
-import com.google.cloud.firestore.annotation.DocumentId
-import com.sage.sage.microservices.user.model.response.DeviceModelV2
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 
-class UserRegistrationRequest(
-    @DocumentId val username: String,
-    val name: String,
-    val surname: String,
-    val password: String,
-    val email: String,
-    val cellNumber: String,
-    val devices: List<DeviceModel>
-)
+
 
 class UserModel(
     val id: String,
     var userKey: String?,
     val name: String,
-    val surname: String,
     val password: String,
     val email: String,
+    val dateOfBirth: String,
+    val gender: String,
     val cellNumber: String,
     val devices: List<DeviceModel>,
     var isVerified: Boolean?,
@@ -32,10 +22,11 @@ class UserModel(
 class UserRegistrationRequestV2(
     val id: String,
     val name: String,
-    val surname: String,
     val password: String,
     val email: String,
-    val cellNumber: String,
+    val dateOfBirth: String,
+    val gender: String,
+    val cellNumber: String?,
     val deviceId: String,
 )
 
@@ -43,10 +34,11 @@ class UserRegistration(
     val id: String,
     var userKey: String?,
     val name: String,
-    val surname: String,
     val password: String,
     val email: String,
-    val cellNumber: String,
+    val dateOfBirth: String,
+    val gender: String,
+    val cellNumber: String?,
     val devices: List<DeviceRequest>,
     var isVerified: Boolean?,
     var otp: String?
@@ -61,9 +53,10 @@ class UserRegistration(
                 id ,
                 userKey,
                 name,
-                surname,
                 password,
                 email,
+                dateOfBirth,
+                gender,
                 cellNumber,
                 registerDevice,
                 isVerified,

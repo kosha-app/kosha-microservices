@@ -1,7 +1,7 @@
 package com.sage.sage.microservices.user.repository
 
 object EmailTemplateConstants {
-    const val VERIFICATION_EMAIL_SUBJECT = "Your OTP for Registration - [Your App Name]"
+    const val VERIFICATION_EMAIL_SUBJECT = "Your OTP for Registration - Kosha App"
     const val VERIFICATION_EMAIL_BODY = "Your OTP for registration is: %s\n" +
             "Please use this code to complete your registration process.\n" +
             "\n" +

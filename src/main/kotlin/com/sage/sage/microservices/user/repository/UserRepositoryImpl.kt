@@ -10,7 +10,7 @@ import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
 import com.sage.sage.microservices.azure.AzureInitializer
-import com.sage.sage.microservices.user.model.UserV2
+import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.request.UserRegistration.Companion.toUserRegistration
 import com.sage.sage.microservices.user.model.response.DeviceModelV2
@@ -48,6 +48,20 @@ class UserRepositoryImpl(
         return Pair(response?.statusCode, user.otp)
     }
 
+    override fun checkEmail(email: String): Int? {
+        val response = azureInitializer.userContainer?.readAllItems(
+            PartitionKey(profileUserKey),
+            User::class.java
+        )
+        var code: Int? = null
+         response?.forEach {
+            if (it.email != email){
+                code = 200
+            }
+        }
+        return code
+    }
+
     override fun createDevice(deviceModel: DeviceModelV2): String {
        val response = azureInitializer.userContainer?.createItem(
             deviceModel,
@@ -58,16 +72,16 @@ class UserRepositoryImpl(
         return  response?.statusCode.toString()
     }
 
-    override fun addDevice(username: String, deviceModel: DeviceRequest): Int? {
-        val user = getByUsername(username)
+    override fun addDevice(email: String, deviceModel: DeviceRequest): Int? {
+        val user = getByEmail(email)
         val devices = ArrayList<DeviceRequest>()
         user?.devices?.let { devices.addAll(it) }
         devices.add(deviceModel)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/devices", devices as List<DeviceRequest>), UserV2::class.java
+                .replace("/devices", devices as List<DeviceRequest>), User::class.java
         )
 
         return response?.statusCode
@@ -105,13 +119,13 @@ class UserRepositoryImpl(
         }
     }
 
-    override fun otpVerification(username: String, request: UserVerificationRequest): Boolean {
-        val user = getByUsername(username)
+    override fun otpVerification(email: String, request: UserVerificationRequest): Boolean {
+        val user = getByEmail(email)
         val result: Boolean
         if (user != null) {
             if (user.otp == request.otp) {
                 result = true
-                updateVerification(username)
+                updateVerification(email)
             } else {
                 result = false
             }
@@ -134,84 +148,92 @@ class UserRepositoryImpl(
         return otpBuilder.toString()
     }
 
-    override fun getByUsername(username: String): UserV2? {
-        return azureInitializer.userContainer?.readItem(
-            username,
+    override fun getByEmail(email: String): User? {
+        return azureInitializer.userContainer?.readAllItems(
             PartitionKey(profileUserKey),
-            UserV2::class.java
-        )?.item
+            User::class.java
+        )?.find {
+            it.email == email
+        }
     }
 
-    override fun deleteByUsername(username: String): Int? {
+    override fun deleteByEmail(email: String): Int? {
+        val user = getByEmail(email)
        return azureInitializer.userContainer?.deleteItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
            CosmosItemRequestOptions()
         )?.statusCode
     }
 
-    override fun updateName(username: String, userUpdateNameRequest: UserUpdateNameRequest): String {
+    override fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): String {
+        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/name", userUpdateNameRequest.newName), UserV2::class.java
+                .replace("/name", userUpdateNameRequest.newName), User::class.java
         )
 
         return response?.statusCode.toString()
     }
 
-    private fun updateVerification(username: String): String {
+    private fun updateVerification(email: String): String {
+        val user = getByEmail(email)
        val response = azureInitializer.userContainer?.patchItem(
-           username,
+           user?.id,
            PartitionKey(profileUserKey),
            CosmosPatchOperations.create()
                .replace("/verified", true)
-               .replace("/otp", ""), UserV2::class.java
+               .replace("/otp", ""), User::class.java
        )
 
         return response?.statusCode.toString()
     }
 
-    override fun updateOtp(username: String, otp: String): String {
+    override fun updateOtp(email: String, otp: String): String {
+        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/otp", otp), UserV2::class.java
+                .replace("/otp", otp), User::class.java
         )
 
         return response?.statusCode.toString()
     }
 
-    override fun updateSurname(username: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): String {
+    override fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): String {
+        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/surname", userUpdateSurnameRequest.newSurname), UserV2::class.java
+                .replace("/surname", userUpdateSurnameRequest.newSurname), User::class.java
         )
 
         return response?.statusCode.toString()
     }
 
-    override fun updateEmail(username: String, userUpdateEmailRequest: UserUpdateEmailRequest): String {
+    override fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): String {
+        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/email", userUpdateEmailRequest.newEmail), UserV2::class.java
+                .replace("/email", userUpdateEmailRequest.newEmail), User::class.java
         )
 
         return response?.statusCode.toString()
     }
 
-    override fun updatePassword(username: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): String {
+    override fun updatePassword(email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): String {
+        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
-            username,
+            user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/password", userUpdatePasswordRequest.newPassword), UserV2::class.java
+                .replace("/password", userUpdatePasswordRequest.newPassword), User::class.java
         )
 
         return response?.statusCode.toString()

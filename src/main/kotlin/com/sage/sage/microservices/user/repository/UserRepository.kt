@@ -1,6 +1,6 @@
 package com.sage.sage.microservices.user.repository
 
-import com.sage.sage.microservices.user.model.UserV2
+import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.DeviceModelV2
 import com.sage.sage.microservices.user.model.response.DeviceRequest
@@ -11,27 +11,29 @@ interface UserRepository {
 
     fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?>
 
+    fun checkEmail(email: String): Int?
+
     fun sendOtp(email: String, otp: String)
 
     fun resendOtp(email: String): String
 
-    fun updateOtp(username: String, otp: String): String
+    fun updateOtp(email: String, otp: String): String
 
-    fun otpVerification(username: String, request: UserVerificationRequest): Boolean
+    fun otpVerification(email: String, request: UserVerificationRequest): Boolean
 
     fun createDevice(deviceModel: DeviceModelV2): String
 
-    fun addDevice(username: String, deviceModel: DeviceRequest): Int?
+    fun addDevice(email: String, deviceModel: DeviceRequest): Int?
 
-    fun getByUsername(username: String): UserV2?
+    fun getByEmail(email: String): User?
 
-    fun deleteByUsername(username: String): Int?
+    fun deleteByEmail(email: String): Int?
 
-    fun updatePassword(username: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): String
+    fun updatePassword(email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): String
 
-    fun updateEmail(username: String, userUpdateEmailRequest: UserUpdateEmailRequest): String
+    fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): String
 
-    fun updateSurname(username: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): String
+    fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): String
 
-    fun updateName(username: String, userUpdateNameRequest: UserUpdateNameRequest): String
+    fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): String
 }

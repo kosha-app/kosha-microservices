@@ -7,9 +7,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface IDeviceRepository {
-    fun checkDevice(deviceId: String): CheckDeviceResponse?
 
-    fun checkDeviceV2(deviceId: String): DeviceModelV2?
-
-    fun updateDeviceLogIn(deviceId: String, updateLogInRequest: UpdateLogInRequest): String
+    fun checkDevice(deviceId: String): DeviceModelV2?
 }
