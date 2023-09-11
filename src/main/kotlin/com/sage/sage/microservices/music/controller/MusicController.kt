@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/music")
 class MusicController(private val musicService: MusicService) {
 
+
     @GetMapping("/track/{trackId}")
     fun getTrack(@PathVariable trackId: String): ResponseEntity<TrackResponse> {
         return musicService.getTrack(trackId)
