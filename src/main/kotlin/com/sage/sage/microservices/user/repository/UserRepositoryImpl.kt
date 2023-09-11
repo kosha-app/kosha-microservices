@@ -13,7 +13,7 @@ import com.sage.sage.microservices.azure.AzureInitializer
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.request.UserRegistration.Companion.toUserRegistration
-import com.sage.sage.microservices.user.model.response.DeviceModelV2
+import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
 import kotlin.random.Random
@@ -38,17 +38,18 @@ class UserRepositoryImpl(
             CosmosItemRequestOptions()
         )
 
-        createDevice(DeviceModelV2(
+        createDevice(
+            DeviceModel(
             user.devices[0].deviceId,
             deviceUserKey,
-            false,
-            user.id)
+            user.id
+            )
         )
 
         return Pair(response?.statusCode, user.otp)
     }
 
-    override fun createDevice(deviceModel: DeviceModelV2): String {
+    override fun createDevice(deviceModel: DeviceModel): String {
        val response = azureInitializer.userContainer?.createItem(
             deviceModel,
             PartitionKey(deviceModel.userKey),

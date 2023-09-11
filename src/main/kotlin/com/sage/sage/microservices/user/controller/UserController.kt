@@ -5,6 +5,7 @@ import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.service.UserService
 import com.sage.sage.microservices.user.model.response.TestResponse
 import com.sage.sage.microservices.user.model.request.*
+import com.sage.sage.microservices.user.model.response.DefaultResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ExecutionException
@@ -13,12 +14,12 @@ import java.util.concurrent.ExecutionException
 @RequestMapping("/user")
 class UserController(private val userService: UserService)   {
     @PostMapping("/register")
-    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
+    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<DefaultResponse> {
         return userService.create(userRegistrationRequest)
     }
 
     @PostMapping("/checkemail/{email}")
-    fun checkEmail(@PathVariable email: String): ResponseEntity<String> {
+    fun checkEmail(@PathVariable email: String): ResponseEntity<DefaultResponse> {
         return userService.checkEmail(email)
     }
 
@@ -28,42 +29,42 @@ class UserController(private val userService: UserService)   {
     }
 
     @PostMapping("/resendOtp/{email}")
-    fun resendOtp(@PathVariable email: String): ResponseEntity<String>{
+    fun resendOtp(@PathVariable email: String): ResponseEntity<DefaultResponse>{
         return userService.resendOtp(email)
     }
 
     @PutMapping("/verification/{email}")
-    fun otpVerification(@PathVariable email: String, @RequestBody request: UserVerificationRequest): ResponseEntity<String>{
+    fun otpVerification(@PathVariable email: String, @RequestBody request: UserVerificationRequest): ResponseEntity<DefaultResponse>{
         return userService.otpVerification(email, request)
     }
 
     @PutMapping("/update/name/{email}")
-    fun updateName( @PathVariable email: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): ResponseEntity<String> {
+    fun updateName( @PathVariable email: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): ResponseEntity<DefaultResponse> {
         return userService.updateName(email, userUpdateNameRequest)
     }
 
     @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/surname/{email}")
-    fun updateSurname( @PathVariable email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): ResponseEntity<String> {
+    fun updateSurname( @PathVariable email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): ResponseEntity<DefaultResponse> {
         return userService.updateSurname(email, userUpdateSurnameRequest)
     }
 
     @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/email/{email}")
-    fun updateEmail( @PathVariable email: String, userUpdateEmailRequest: UserUpdateEmailRequest): ResponseEntity<String> {
+    fun updateEmail( @PathVariable email: String, userUpdateEmailRequest: UserUpdateEmailRequest): ResponseEntity<DefaultResponse> {
         return userService.updateEmail(email, userUpdateEmailRequest)
     }
 
     @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/password/{email}")
-    fun updatePassword( @PathVariable email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): ResponseEntity<String> {
+    fun updatePassword( @PathVariable email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): ResponseEntity<DefaultResponse> {
         return userService.updatePassword(email, userUpdatePasswordRequest)
     }
 
 
     @Throws(InterruptedException::class, ExecutionException::class)
     @DeleteMapping("/delete/{email}")
-    fun deleteUser( @PathVariable email: String): ResponseEntity<String> {
+    fun deleteUser( @PathVariable email: String): ResponseEntity<DefaultResponse> {
         return userService.deleteByEmail(email)
     }
 

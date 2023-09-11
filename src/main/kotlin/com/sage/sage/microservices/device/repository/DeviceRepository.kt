@@ -14,7 +14,7 @@ import com.google.cloud.firestore.DocumentSnapshot
 import com.google.cloud.firestore.WriteResult
 import com.google.firebase.cloud.FirestoreClient
 import com.sage.sage.microservices.azure.AzureInitializer
-import com.sage.sage.microservices.user.model.response.DeviceModelV2
+import com.sage.sage.microservices.user.model.response.DeviceModel
 import org.springframework.stereotype.Repository
 
 
@@ -25,11 +25,11 @@ class DeviceRepository(
 
     @JsonProperty("userKey") val deviceKey = "device"
 
-    override fun checkDevice(deviceId: String): DeviceModelV2? {
+    override fun checkDevice(deviceId: String): DeviceModel? {
         val response = azureInitializer.userContainer?.readItem(
             deviceId,
             PartitionKey(deviceKey),
-            DeviceModelV2::class.java
+            DeviceModel::class.java
         )
         return response?.item
     }

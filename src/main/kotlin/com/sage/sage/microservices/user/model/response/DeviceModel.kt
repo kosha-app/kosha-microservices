@@ -3,20 +3,12 @@ package com.sage.sage.microservices.user.model.response
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.cloud.firestore.annotation.DocumentId
 
-class DeviceModel (
-    @JsonProperty("deviceId") val deviceId: String,
-    @JsonProperty("loggedIn") val isLoggedIn: Boolean,
-    @JsonProperty("userUsername") val userUsername: String
-)
-
 class DeviceRequest (
-    @JsonProperty("deviceId") val deviceId: String,
-    @JsonProperty("loggedIn") val isLoggedIn: Boolean
+    @JsonProperty("deviceId") val deviceId: String
 )
 
-class DeviceModelV2 (
+class DeviceModel (
     @JsonProperty("id") val id: String,
     @JsonProperty("userKey") val userKey: String?,
-    @JsonProperty("loggedIn") val isLoggedIn: Boolean,
-    @JsonProperty("userUsername") val userUsername: String
+    @JsonProperty("userId") val userId: String
 )

@@ -2,7 +2,7 @@ package com.sage.sage.microservices.user.model.request
 
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
-
+import java.util.UUID
 
 
 class UserModel(
@@ -20,7 +20,6 @@ class UserModel(
 )
 
 class UserRegistrationRequestV2(
-    val id: String,
     val name: String,
     val password: String,
     val email: String,
@@ -45,7 +44,8 @@ class UserRegistration(
 ){
     companion object{
         fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
-            val registerDevice = listOf(DeviceRequest(deviceId = deviceId, isLoggedIn = false))
+            val registerDevice = listOf(DeviceRequest(deviceId = deviceId))
+            val id: String = UUID.randomUUID().toString()
             val userKey = null
             val isVerified = null
             val otp = null

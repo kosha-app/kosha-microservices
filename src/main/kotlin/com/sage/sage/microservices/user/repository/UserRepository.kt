@@ -2,7 +2,7 @@ package com.sage.sage.microservices.user.repository
 
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
-import com.sage.sage.microservices.user.model.response.DeviceModelV2
+import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
 
@@ -19,7 +19,7 @@ interface UserRepository {
 
     fun otpVerification(email: String, request: UserVerificationRequest): Boolean
 
-    fun createDevice(deviceModel: DeviceModelV2): String
+    fun createDevice(deviceModel: DeviceModel): String
 
     fun addDevice(email: String, deviceModel: DeviceRequest): Int?
 

@@ -4,7 +4,8 @@ import com.azure.cosmos.CosmosException
 import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
-import com.sage.sage.microservices.user.model.response.DeviceModelV2
+import com.sage.sage.microservices.user.model.response.DefaultResponse
+import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -16,123 +17,125 @@ class UserService(
     private val userRepository: UserRepository
 ) {
 
-    fun create(userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<String> {
+    fun create(userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<DefaultResponse> {
         return try {
             val response = userRepository.create(userRegistrationRequest)
             println("Sage Create User V2 Response Code: ${response.first}")
             userRepository.sendOtp(userRegistrationRequest.email, response.second.toString())
-            ResponseEntity("User Successfully created", HttpStatus.CREATED)
+            ResponseEntity(DefaultResponse(message = "User Successfully created"), HttpStatus.CREATED)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
 
         }
     }
 
-    fun checkEmail(email: String): ResponseEntity<String> {
+    fun checkEmail(email: String): ResponseEntity<DefaultResponse> {
         return try {
             val response = userRepository.getByEmail(email)
             if (response != null){
-                ResponseEntity("User with email $email already exists",HttpStatus.CONFLICT)
+                ResponseEntity(DefaultResponse(message = "User with email $email already exists"),HttpStatus.CONFLICT)
 
             } else {
-                ResponseEntity(HttpStatus.OK)
+                ResponseEntity(DefaultResponse("User can register"),HttpStatus.OK)
             }
         } catch (e: CosmosException){
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun otpVerification(email: String, request: UserVerificationRequest): ResponseEntity<String> {
+    fun otpVerification(email: String, request: UserVerificationRequest): ResponseEntity<DefaultResponse> {
         val result = userRepository.otpVerification(email, request)
         return if (result) {
-            ResponseEntity("User Verified", HttpStatus.OK)
+            ResponseEntity(DefaultResponse("User Verified"), HttpStatus.OK)
         } else {
-            ResponseEntity("OTP does not match ${request.otp}", HttpStatus.NOT_ACCEPTABLE)
+            ResponseEntity(DefaultResponse("OTP does not match ${request.otp}"), HttpStatus.NOT_ACCEPTABLE)
         }
     }
 
-    fun resendOtp(email: String): ResponseEntity<String> {
+    fun resendOtp(email: String): ResponseEntity<DefaultResponse> {
         return try {
             val user = userRepository.getByEmail(email)
             val otp = userRepository.resendOtp(email = user?.email.toString())
             userRepository.updateOtp(email, otp)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
     fun signUserIn(userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse> {
         return try {
             val user = userRepository.getByEmail(userSignInRequest.email)
-            if (user?.password == userSignInRequest.password) {
-                userRepository.createDevice(
-                    DeviceModelV2(
-                        id = userSignInRequest.deviceId,
-                        userKey = "device",
-                        isLoggedIn = true,
-                        userUsername = userSignInRequest.email
+            if (user != null){
+                if (user.password == userSignInRequest.password) {
+                    userRepository.createDevice(
+                        DeviceModel(
+                            id = userSignInRequest.deviceId,
+                            userKey = "device",
+                            userId = user.id
+                        )
                     )
-                )
-                userRepository.addDevice(
-                    userSignInRequest.email,
-                    DeviceRequest(
-                        deviceId = userSignInRequest.deviceId,
-                        isLoggedIn = true
+                    userRepository.addDevice(
+                        userSignInRequest.email,
+                        DeviceRequest(
+                            deviceId = userSignInRequest.deviceId
+                        )
                     )
-                )
-                ResponseEntity(SignInResponse(message = "User Successfully Signed In"), HttpStatus.OK)
-            } else {
-                ResponseEntity(SignInResponse(message = "Password Incorrect"), HttpStatus.CONFLICT)
+                    ResponseEntity(SignInResponse(message = "User Successfully Signed In"), HttpStatus.OK)
+                } else {
+                    ResponseEntity(SignInResponse(message = "Password Incorrect"), HttpStatus.CONFLICT)
+                }
+            }else {
+                ResponseEntity(SignInResponse(message = "User with email ${userSignInRequest.email} does not exist"), HttpStatus.NOT_FOUND)
             }
         } catch (e: CosmosException) {
             ResponseEntity(SignInResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): ResponseEntity<String> {
+    fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): ResponseEntity<DefaultResponse> {
         return try {
             userRepository.updateName(email, userUpdateNameRequest)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
 
     }
 
-    fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): ResponseEntity<String> {
+    fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): ResponseEntity<DefaultResponse> {
         return try {
             userRepository.updateSurname(email, userUpdateSurnameRequest)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): ResponseEntity<String> {
+    fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): ResponseEntity<DefaultResponse> {
         return try {
             userRepository.updateEmail(email, userUpdateEmailRequest)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun updatePassword(email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): ResponseEntity<String> {
+    fun updatePassword(email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): ResponseEntity<DefaultResponse> {
         return try {
             userRepository.updatePassword(email, userUpdatePasswordRequest)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun deleteByEmail(email: String): ResponseEntity<String> {
+    fun deleteByEmail(email: String): ResponseEntity<DefaultResponse> {
         return try {
             userRepository.deleteByEmail(email)
-            ResponseEntity(HttpStatus.OK)
+            ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
-            ResponseEntity(e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
