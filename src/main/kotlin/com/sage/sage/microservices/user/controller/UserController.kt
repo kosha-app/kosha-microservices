@@ -24,7 +24,7 @@ class UserController(private val userService: UserService)   {
     }
 
     @PostMapping("/signin")
-    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse>{
+    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<DefaultResponse>{
         return userService.signUserIn(userSignInRequest)
     }
 

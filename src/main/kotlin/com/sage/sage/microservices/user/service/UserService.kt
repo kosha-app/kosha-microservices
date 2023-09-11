@@ -1,7 +1,6 @@
 package com.sage.sage.microservices.user.service
 
 import com.azure.cosmos.CosmosException
-import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.DefaultResponse
@@ -63,7 +62,7 @@ class UserService(
         }
     }
 
-    fun signUserIn(userSignInRequest: UserSignInRequest): ResponseEntity<SignInResponse> {
+    fun signUserIn(userSignInRequest: UserSignInRequest): ResponseEntity<DefaultResponse> {
         return try {
             val user = userRepository.getByEmail(userSignInRequest.email)
             if (user != null){
@@ -81,15 +80,15 @@ class UserService(
                             deviceId = userSignInRequest.deviceId
                         )
                     )
-                    ResponseEntity(SignInResponse(message = "User Successfully Signed In"), HttpStatus.OK)
+                    ResponseEntity(DefaultResponse(message = "User Successfully Signed In"), HttpStatus.OK)
                 } else {
-                    ResponseEntity(SignInResponse(message = "Password Incorrect"), HttpStatus.CONFLICT)
+                    ResponseEntity(DefaultResponse(message = "Password Incorrect"), HttpStatus.CONFLICT)
                 }
             }else {
-                ResponseEntity(SignInResponse(message = "User with email ${userSignInRequest.email} does not exist"), HttpStatus.NOT_FOUND)
+                ResponseEntity(DefaultResponse(message = "User with email ${userSignInRequest.email} does not exist"), HttpStatus.NOT_FOUND)
             }
         } catch (e: CosmosException) {
-            ResponseEntity(SignInResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 

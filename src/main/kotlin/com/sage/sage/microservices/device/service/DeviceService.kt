@@ -14,15 +14,22 @@ class DeviceService(
     private val repository: IDeviceRepository
 ) {
 
-    fun checkDevice(deviceId: String): ResponseEntity<String> {
+    fun checkDevice(deviceId: String): ResponseEntity<CheckDeviceResponse> {
         return try {
-            repository.checkDevice(deviceId)
-            ResponseEntity(
-                "Device Logged in with user",
-                HttpStatus.OK
-            )
+            val response = repository.getDevice(deviceId)
+            if (response != null) {
+                ResponseEntity(
+                    CheckDeviceResponse(true, "Device Logged in with user"),
+                    HttpStatus.OK
+                )
+            } else {
+                ResponseEntity(
+                    CheckDeviceResponse(false, "Device not logged in"),
+                    HttpStatus.NOT_FOUND
+                )
+            }
         } catch (e: CosmosException) {
-            ResponseEntity( e.shortMessage, HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(CheckDeviceResponse(null, e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
 
     }

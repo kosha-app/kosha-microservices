@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface IDeviceRepository {
 
-    fun checkDevice(deviceId: String): DeviceModel?
+    fun getDevice(deviceId: String): DeviceModel?
 }

@@ -1,3 +1,3 @@
 package com.sage.sage.microservices.user.model.response
 
-class SignInResponse(val username: String = "", val message: String)
+class SignInResponse(val id: String = "", val message: String)
