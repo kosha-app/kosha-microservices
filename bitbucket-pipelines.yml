@@ -12,6 +12,7 @@ pipelines:
     - parallel:
       - step:
           name: Build and Test
+          image: openjdk:17
           caches:
             - gradle
           script:
@@ -28,6 +29,7 @@ pipelines:
     master:
       - step:
           name: Build
+          image: openjdk:17
           script:
             - ./gradlew build
             - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
