@@ -25,7 +25,7 @@ pipelines:
             # See more security tools at https://bitbucket.org/product/features/pipelines/integrations?&category=security
             - pipe: atlassian/git-secrets-scan:0.5.1
   branches:
-    master:
+    deploy-to-azure:
       - step:
           name: Build
           script:
