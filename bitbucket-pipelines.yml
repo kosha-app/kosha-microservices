@@ -30,7 +30,6 @@ pipelines:
           name: Build
           script:
             - apt-get update
-            - apt-get upgrade
             - apt install openjdk-17-jdk
             - ./gradlew build
             - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
