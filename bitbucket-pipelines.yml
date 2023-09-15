@@ -1,0 +1,51 @@
+#  Template Java Gradle build
+
+#  This template allows you to test and build your Java project with Gradle.
+#  The workflow allows running tests, code checkstyle and security scans on the default branch.
+
+# Prerequisites: appropriate project structure should exist in the repository.
+
+image: gradle:6.6.0
+
+pipelines:
+  default:
+    - parallel:
+      - step:
+          name: Build and Test
+          caches:
+            - gradle
+          script:
+            - gradle build
+          after-script:
+            - pipe: atlassian/checkstyle-report:0.3.0
+      - step:
+          name: Security Scan
+          script:
+            # Run a security scan for sensitive data.
+            # See more security tools at https://bitbucket.org/product/features/pipelines/integrations?&category=security
+            - pipe: atlassian/git-secrets-scan:0.5.1
+  branches:
+    master:
+      - step:
+          name: Build
+          script:
+            - gradle build
+            - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
+          artifacts:
+            - application.zip
+      - step:
+          name: Deploy to Production
+          deployment: Production
+          trigger: manual
+          script:
+            - pipe: atlassian/azure-web-apps-deploy:1.1.0
+              variables:
+                AZURE_APP_ID: $AZURE_APP_ID
+                AZURE_PASSWORD: $AZURE_PASSWORD
+                AZURE_TENANT_ID: $AZURE_TENANT_ID
+                AZURE_RESOURCE_GROUP: 'kosha'
+                AZURE_APP_NAME: 'kosha-mca'
+                ZIP_FILE: 'application.zip'
+                # SLOT: '<string>' # Optional.
+                # AZURE_CLOUD_ENVIRONMENT: '<string>' # Optional
+                # DEBUG: '<boolean>' # Optional.
