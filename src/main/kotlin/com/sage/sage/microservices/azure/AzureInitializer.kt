@@ -22,7 +22,7 @@ class AzureInitializer {
     private val usersContainerName = "users"
     private val albumContainerName = "albums"
 
-    private val userDatabaseName = "KoshaDB"
+    private val userDatabaseName = "koshadb"
 
     init{
         try {

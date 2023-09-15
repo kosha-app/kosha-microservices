@@ -10,12 +10,14 @@ import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
 import com.sage.sage.microservices.azure.AzureInitializer
+import com.sage.sage.microservices.user.model.OTPModel
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.request.UserRegistration.Companion.toUserRegistration
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
+import java.util.UUID
 import kotlin.random.Random
 
 
@@ -26,10 +28,10 @@ class UserRepositoryImpl(
 
     val profileUserKey = "profile"
     val deviceUserKey = "device"
+    val otpUserKey = "otp"
 
-    override fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?> {
+    override fun create(userRegistrationRequest: UserRegistrationRequestV2): Int? {
         val user = userRegistrationRequest.toUserRegistration()
-        user.otp = generateSixDigitOTP()
         user.userKey = profileUserKey
         user.isVerified = false
         val response = azureInitializer.userContainer?.createItem(
@@ -40,23 +42,23 @@ class UserRepositoryImpl(
 
         createDevice(
             DeviceModel(
-            user.devices[0].deviceId,
-            deviceUserKey,
-            user.id
+                user.devices[0].deviceId,
+                deviceUserKey,
+                user.id
             )
         )
 
-        return Pair(response?.statusCode, user.otp)
+        return response?.statusCode
     }
 
     override fun createDevice(deviceModel: DeviceModel): String {
-       val response = azureInitializer.userContainer?.createItem(
+        val response = azureInitializer.userContainer?.createItem(
             deviceModel,
             PartitionKey(deviceModel.userKey),
             CosmosItemRequestOptions()
         )
 
-        return  response?.statusCode.toString()
+        return response?.statusCode.toString()
     }
 
     override fun addDevice(email: String, deviceModel: DeviceRequest): Int? {
@@ -74,14 +76,9 @@ class UserRepositoryImpl(
         return response?.statusCode
     }
 
-    override fun resendOtp(email: String): String {
+
+    override fun sendOtp(id: String, email: String) {
         val otp = generateSixDigitOTP()
-        sendOtp(email, otp)
-        return otp
-    }
-
-
-    override fun sendOtp(email: String, otp: String) {
         println("Email send started")
         val message: EmailMessage = EmailMessage()
             .setSenderAddress("<DoNotReply@0d93d82e-7c88-483e-be50-49579c43b2dd.azurecomm.net>")
@@ -90,7 +87,8 @@ class UserRepositoryImpl(
             .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
 
         try {
-            val poller: SyncPoller<EmailSendResult?, EmailSendResult> = azureInitializer.emailClient!!.beginSend(message, null)
+            val poller: SyncPoller<EmailSendResult?, EmailSendResult> =
+                azureInitializer.emailClient!!.beginSend(message, null)
             var pollResponse: PollResponse<EmailSendResult?>? = null
             while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
                 pollResponse = poller.poll()
@@ -98,6 +96,7 @@ class UserRepositoryImpl(
             }
             if (poller.finalResult.status === EmailSendStatus.SUCCEEDED) {
                 System.out.printf("Successfully sent the email (operation id: %s)", poller.finalResult.id)
+                saveOtp(id, email, otp)
             } else {
                 throw RuntimeException(poller.finalResult.error.message)
             }
@@ -106,21 +105,32 @@ class UserRepositoryImpl(
         }
     }
 
-    override fun otpVerification(email: String, request: UserVerificationRequest): Boolean {
-        val user = getByEmail(email)
-        val result: Boolean
-        if (user != null) {
-            if (user.otp == request.otp) {
-                result = true
-                updateVerification(email)
-            } else {
-                result = false
-            }
-        } else {
-            result = false
-        }
+    private fun saveOtp(id: String ,email: String, otp: String): String {
+        val otpModel = OTPModel(id,otpUserKey, email, otp)
+        azureInitializer.userContainer?.createItem(
+            otpModel,
+            PartitionKey(otpUserKey),
+            CosmosItemRequestOptions()
+        )
+        return id
+    }
 
-        return result
+    override fun registrationCancelled(email: String) {
+        azureInitializer.userContainer?.deleteItem(
+            email,
+            PartitionKey(otpUserKey),
+            CosmosItemRequestOptions()
+        )
+    }
+
+    override fun otpVerification(id: String, request: UserVerificationRequest): Boolean {
+        val response = azureInitializer.userContainer?.readItem(
+            id,
+            PartitionKey(otpUserKey),
+            OTPModel::class.java
+        )
+
+        return response?.item?.otp == request.otp
     }
 
     private fun generateSixDigitOTP(): String {
@@ -146,10 +156,10 @@ class UserRepositoryImpl(
 
     override fun deleteByEmail(email: String): Int? {
         val user = getByEmail(email)
-       return azureInitializer.userContainer?.deleteItem(
+        return azureInitializer.userContainer?.deleteItem(
             user?.id,
             PartitionKey(profileUserKey),
-           CosmosItemRequestOptions()
+            CosmosItemRequestOptions()
         )?.statusCode
     }
 
@@ -167,24 +177,23 @@ class UserRepositoryImpl(
 
     private fun updateVerification(email: String): String {
         val user = getByEmail(email)
-       val response = azureInitializer.userContainer?.patchItem(
-           user?.id,
-           PartitionKey(profileUserKey),
-           CosmosPatchOperations.create()
-               .replace("/verified", true)
-               .replace("/otp", ""), User::class.java
-       )
-
-        return response?.statusCode.toString()
-    }
-
-    override fun updateOtp(email: String, otp: String): String {
-        val user = getByEmail(email)
         val response = azureInitializer.userContainer?.patchItem(
             user?.id,
             PartitionKey(profileUserKey),
             CosmosPatchOperations.create()
-                .replace("/otp", otp), User::class.java
+                .replace("/verified", true)
+                .replace("/otp", ""), User::class.java
+        )
+
+        return response?.statusCode.toString()
+    }
+
+    override fun updateOtp(id: String, otp: String): String {
+        val response = azureInitializer.userContainer?.patchItem(
+            id,
+            PartitionKey(otpUserKey),
+            CosmosPatchOperations.create()
+                .replace("/otp", otp), OTPModel::class.java
         )
 
         return response?.statusCode.toString()

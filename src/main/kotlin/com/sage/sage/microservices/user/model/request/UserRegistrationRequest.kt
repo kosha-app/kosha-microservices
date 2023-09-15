@@ -15,8 +15,7 @@ class UserModel(
     val gender: String,
     val cellNumber: String,
     val devices: List<DeviceModel>,
-    var isVerified: Boolean?,
-    var otp: String?
+    var isVerified: Boolean?
 )
 
 class UserRegistrationRequestV2(
@@ -39,8 +38,7 @@ class UserRegistration(
     val gender: String,
     val cellNumber: String?,
     val devices: List<DeviceRequest>,
-    var isVerified: Boolean?,
-    var otp: String?
+    var isVerified: Boolean?
 ){
     companion object{
         fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
@@ -48,7 +46,6 @@ class UserRegistration(
             val id: String = UUID.randomUUID().toString()
             val userKey = null
             val isVerified = null
-            val otp = null
             return UserRegistration(
                 id ,
                 userKey,
@@ -59,8 +56,7 @@ class UserRegistration(
                 gender,
                 cellNumber,
                 registerDevice,
-                isVerified,
-                otp
+                isVerified
             )
         }
     }

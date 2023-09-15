@@ -3,6 +3,7 @@ package com.sage.sage.microservices.user.service
 import com.azure.cosmos.CosmosException
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
+import com.sage.sage.microservices.user.model.response.CheckEmailResponse
 import com.sage.sage.microservices.user.model.response.DefaultResponse
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class UserService(
@@ -18,9 +20,7 @@ class UserService(
 
     fun create(userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<DefaultResponse> {
         return try {
-            val response = userRepository.create(userRegistrationRequest)
-            println("Sage Create User V2 Response Code: ${response.first}")
-            userRepository.sendOtp(userRegistrationRequest.email, response.second.toString())
+            userRepository.create(userRegistrationRequest)
             ResponseEntity(DefaultResponse(message = "User Successfully created"), HttpStatus.CREATED)
         } catch (e: CosmosException) {
             ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
@@ -28,22 +28,23 @@ class UserService(
         }
     }
 
-    fun checkEmail(email: String): ResponseEntity<DefaultResponse> {
+    fun checkEmail(email: String): ResponseEntity<CheckEmailResponse> {
         return try {
             val response = userRepository.getByEmail(email)
             if (response != null){
-                ResponseEntity(DefaultResponse(message = "User with email $email already exists"),HttpStatus.CONFLICT)
-
+                ResponseEntity(CheckEmailResponse(id = null,message = "User with email $email already exists"),HttpStatus.CONFLICT)
             } else {
-                ResponseEntity(DefaultResponse("User can register"),HttpStatus.OK)
+                val id = UUID.randomUUID().toString()
+                userRepository.sendOtp(id, email)
+                ResponseEntity(CheckEmailResponse(id = id, message = "User can register"),HttpStatus.OK)
             }
         } catch (e: CosmosException){
-            ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+            ResponseEntity(CheckEmailResponse(id = null, e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun otpVerification(email: String, request: UserVerificationRequest): ResponseEntity<DefaultResponse> {
-        val result = userRepository.otpVerification(email, request)
+    fun otpVerification(id: String, request: UserVerificationRequest): ResponseEntity<DefaultResponse> {
+        val result = userRepository.otpVerification(id, request)
         return if (result) {
             ResponseEntity(DefaultResponse("User Verified"), HttpStatus.OK)
         } else {
@@ -51,11 +52,12 @@ class UserService(
         }
     }
 
-    fun resendOtp(email: String): ResponseEntity<DefaultResponse> {
+    fun resendOtp(id: String, email: String): ResponseEntity<DefaultResponse> {
+        //TODO still to reimplement resend OTP
         return try {
             val user = userRepository.getByEmail(email)
-            val otp = userRepository.resendOtp(email = user?.email.toString())
-            userRepository.updateOtp(email, otp)
+//            val otp = userRepository.sendOtp(email = user?.email.toString())
+//            userRepository.updateOtp(id, otp)
             ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
             ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))

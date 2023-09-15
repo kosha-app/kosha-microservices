@@ -5,6 +5,7 @@ import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.service.UserService
 import com.sage.sage.microservices.user.model.response.TestResponse
 import com.sage.sage.microservices.user.model.request.*
+import com.sage.sage.microservices.user.model.response.CheckEmailResponse
 import com.sage.sage.microservices.user.model.response.DefaultResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -19,7 +20,7 @@ class UserController(private val userService: UserService)   {
     }
 
     @PostMapping("/checkemail/{email}")
-    fun checkEmail(@PathVariable email: String): ResponseEntity<DefaultResponse> {
+    fun checkEmail(@PathVariable email: String): ResponseEntity<CheckEmailResponse> {
         return userService.checkEmail(email)
     }
 
@@ -28,14 +29,14 @@ class UserController(private val userService: UserService)   {
         return userService.signUserIn(userSignInRequest)
     }
 
-    @PostMapping("/resendOtp/{email}")
-    fun resendOtp(@PathVariable email: String): ResponseEntity<DefaultResponse>{
-        return userService.resendOtp(email)
-    }
+//    @PostMapping("/resendOtp/{email}")
+//    fun resendOtp(@PathVariable email: String): ResponseEntity<DefaultResponse>{
+//        return userService.resendOtp(email)
+//    }
 
-    @PutMapping("/verification/{email}")
-    fun otpVerification(@PathVariable email: String, @RequestBody request: UserVerificationRequest): ResponseEntity<DefaultResponse>{
-        return userService.otpVerification(email, request)
+    @PostMapping("/verification/{id}")
+    fun otpVerification(@PathVariable id: String, @RequestBody request: UserVerificationRequest): ResponseEntity<DefaultResponse>{
+        return userService.otpVerification(id, request)
     }
 
     @PutMapping("/update/name/{email}")

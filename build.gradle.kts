@@ -30,6 +30,8 @@ dependencies {
 
 
     implementation("com.google.firebase:firebase-admin:9.2.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
 
 
 }

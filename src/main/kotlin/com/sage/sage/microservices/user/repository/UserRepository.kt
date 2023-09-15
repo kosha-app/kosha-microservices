@@ -9,15 +9,15 @@ import org.springframework.stereotype.Repository
 @Repository
 interface UserRepository {
 
-    fun create(userRegistrationRequest: UserRegistrationRequestV2): Pair<Int?, String?>
+    fun create(userRegistrationRequest: UserRegistrationRequestV2): Int?
 
-    fun sendOtp(email: String, otp: String)
+    fun sendOtp(id: String, email: String)
 
-    fun resendOtp(email: String): String
+    fun updateOtp(id: String, otp: String): String
 
-    fun updateOtp(email: String, otp: String): String
+    fun registrationCancelled(email: String)
 
-    fun otpVerification(email: String, request: UserVerificationRequest): Boolean
+    fun otpVerification(id: String, request: UserVerificationRequest): Boolean
 
     fun createDevice(deviceModel: DeviceModel): String
 
