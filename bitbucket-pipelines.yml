@@ -15,7 +15,9 @@ pipelines:
           caches:
             - gradle
           script:
-            - gradle build
+            - apt-get update
+            - apt install openjdk-17-jdk -y
+            - ./gradlew build
           after-script:
             - pipe: atlassian/checkstyle-report:0.3.0
       - step:
