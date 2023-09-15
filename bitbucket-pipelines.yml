@@ -5,18 +5,17 @@
 
 # Prerequisites: appropriate project structure should exist in the repository.
 
-image: openjdk:17, gradle:8.2.1
+image: atlassian/default-image:3
 
 pipelines:
   default:
     - parallel:
       - step:
           name: Build and Test
-          image: gradle:8.1.0
           caches:
             - gradle
           script:
-            - gradle build
+            - ./gradlew build
           after-script:
             - pipe: atlassian/checkstyle-report:0.3.0
       - step:
@@ -29,9 +28,8 @@ pipelines:
     master:
       - step:
           name: Build
-          image: atlassian/default-image:2
           script:
-            - gradle build
+            - ./gradlew build
             - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
           artifacts:
             - application.zip
