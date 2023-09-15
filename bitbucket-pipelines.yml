@@ -5,6 +5,8 @@
 
 # Prerequisites: appropriate project structure should exist in the repository.
 
+image: openjdk:17
+
 pipelines:
   default:
     - parallel:
