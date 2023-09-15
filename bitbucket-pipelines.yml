@@ -5,13 +5,12 @@
 
 # Prerequisites: appropriate project structure should exist in the repository.
 
-image: gradle:8.1.0
-
 pipelines:
   default:
     - parallel:
       - step:
           name: Build and Test
+          image: gradle:8.1.0
           caches:
             - gradle
           script:
@@ -30,7 +29,7 @@ pipelines:
           name: Build
           image: atlassian/default-image:2
           script:
-            - gradle build
+            - ./gradlew build
             - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
           artifacts:
             - application.zip
