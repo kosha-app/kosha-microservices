@@ -12,11 +12,11 @@ pipelines:
     - parallel:
       - step:
           name: Build and Test
-          image: openjdk:17
+          image: gradle:8.2.1
           caches:
             - gradle
           script:
-            - ./gradlew build
+            - gradle build
           after-script:
             - pipe: atlassian/checkstyle-report:0.3.0
       - step:
@@ -29,9 +29,9 @@ pipelines:
     master:
       - step:
           name: Build
-          image: openjdk:17
+          image: gradle:8.2.1
           script:
-            - ./gradlew build
+            - gradle build
             - zip -j application.zip build/libs/sage-microservices-0.0.1-SNAPSHOT.jar
           artifacts:
             - application.zip
