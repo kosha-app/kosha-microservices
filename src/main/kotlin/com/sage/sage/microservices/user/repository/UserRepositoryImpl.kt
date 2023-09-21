@@ -17,7 +17,6 @@ import com.sage.sage.microservices.user.model.request.UserRegistration.Companion
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
 import org.springframework.stereotype.Repository
-import java.util.UUID
 import kotlin.random.Random
 
 
@@ -74,6 +73,16 @@ class UserRepositoryImpl(
         )
 
         return response?.statusCode
+    }
+
+    override fun getProfileByUserId(userId: String): User? {
+        val response = azureInitializer.userContainer?.readItem(
+            userId,
+            PartitionKey(profileUserKey),
+            User::class.java
+        )
+
+        return response?.item
     }
 
 

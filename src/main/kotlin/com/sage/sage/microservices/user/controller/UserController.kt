@@ -1,12 +1,9 @@
 package com.sage.sage.microservices.user.controller
 
 import com.sage.sage.microservices.user.model.ResponseType
-import com.sage.sage.microservices.user.model.response.SignInResponse
 import com.sage.sage.microservices.user.service.UserService
-import com.sage.sage.microservices.user.model.response.TestResponse
 import com.sage.sage.microservices.user.model.request.*
-import com.sage.sage.microservices.user.model.response.CheckEmailResponse
-import com.sage.sage.microservices.user.model.response.DefaultResponse
+import com.sage.sage.microservices.user.model.response.*
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ExecutionException
@@ -37,6 +34,11 @@ class UserController(private val userService: UserService)   {
     @PostMapping("/verification/{id}")
     fun otpVerification(@PathVariable id: String, @RequestBody request: UserVerificationRequest): ResponseEntity<DefaultResponse>{
         return userService.otpVerification(id, request)
+    }
+
+    @GetMapping("/profile/{userId}")
+    fun getUserInfo(@PathVariable userId: String): ResponseEntity<GetUserInfoResponse>{
+        return userService.getUserInfo(userId)
     }
 
     @PutMapping("/update/name/{email}")

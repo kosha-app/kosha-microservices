@@ -9,4 +9,8 @@ import org.springframework.stereotype.Repository
 interface IDeviceRepository {
 
     fun getDevice(deviceId: String): DeviceModel?
+
+    fun deleteDevice(deviceId: String)
+
+    fun deleteDeviceFromUser(userId: String, devices: List<DeviceModel>)
 }

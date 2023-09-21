@@ -23,6 +23,8 @@ interface UserRepository {
 
     fun addDevice(email: String, deviceModel: DeviceRequest): Int?
 
+    fun getProfileByUserId(userId: String): User?
+
     fun getByEmail(email: String): User?
 
     fun deleteByEmail(email: String): Int?

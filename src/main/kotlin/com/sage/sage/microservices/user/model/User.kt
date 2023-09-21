@@ -13,8 +13,7 @@ class User(
     @JsonProperty("gender") val gender: String,
     @JsonProperty("cellNumber") val cellNumber: String?,
     @JsonProperty("devices") val devices: List<DeviceRequest>,
-    @JsonProperty("isVerified") val isVerified: Boolean?,
-    @JsonProperty("otp") val otp: String?
+    @JsonProperty("isVerified") val isVerified: Boolean?
 )
 
 

@@ -3,10 +3,8 @@ package com.sage.sage.microservices.user.service
 import com.azure.cosmos.CosmosException
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
-import com.sage.sage.microservices.user.model.response.CheckEmailResponse
-import com.sage.sage.microservices.user.model.response.DefaultResponse
-import com.sage.sage.microservices.user.model.response.DeviceModel
-import com.sage.sage.microservices.user.model.response.DeviceRequest
+import com.sage.sage.microservices.user.model.response.*
+import com.sage.sage.microservices.user.model.response.GetUserInfoResponse.Companion.toGetUserInfo
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
@@ -91,6 +89,15 @@ class UserService(
             }
         } catch (e: CosmosException) {
             ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+        }
+    }
+
+    fun getUserInfo(userId: String): ResponseEntity<GetUserInfoResponse> {
+        return try {
+            val response = userRepository.getProfileByUserId(userId)
+            ResponseEntity(response?.toGetUserInfo(), HttpStatus.OK)
+        }catch (e: CosmosException){
+            ResponseEntity(GetUserInfoResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
