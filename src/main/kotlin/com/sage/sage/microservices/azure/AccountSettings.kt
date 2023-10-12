@@ -30,7 +30,7 @@ object AccountSettings {
             StringUtils.trimToNull(
                 System.getenv()["ACCOUNT_KEY"]
             ),
-            "ZFZfPuensYs9wtW8rxVmVIZUH5vTHCjLMvNykmhkGe11KpZfDJqLxUJdalAoKQ1fTAurIXilZyumACDbE1kuIA=="
+            "ErqYFusppsB7s348T5SvlLK0O6Cs9vpYULNnyH5jHEQqBhlaUBhzzw5nfTlNK3ewjrqPu164A1MrACDbRNXQQQ=="
         )
     )
     var HOST = System.getProperty(
@@ -39,7 +39,7 @@ object AccountSettings {
             StringUtils.trimToNull(
                 System.getenv()["ACCOUNT_HOST"]
             ),
-            "https://koshadb.documents.azure.com:443/"
+            "https://kosha-app.documents.azure.com:443/"
         )
     )
 }
