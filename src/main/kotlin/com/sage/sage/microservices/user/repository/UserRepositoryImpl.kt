@@ -88,40 +88,42 @@ class UserRepositoryImpl(
 
     override fun sendOtp(id: String, email: String) {
         val otp = generateSixDigitOTP()
-        println("Email send started")
-        val message: EmailMessage = EmailMessage()
-            .setSenderAddress("<DoNotReply@0d93d82e-7c88-483e-be50-49579c43b2dd.azurecomm.net>")
-            .setToRecipients("<$email>")
-            .setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
-            .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
-
-        try {
-            val poller: SyncPoller<EmailSendResult?, EmailSendResult> =
-                azureInitializer.emailClient!!.beginSend(message, null)
-            var pollResponse: PollResponse<EmailSendResult?>? = null
-            while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
-                pollResponse = poller.poll()
-                println("Email send poller status: " + pollResponse.status)
-            }
-            if (poller.finalResult.status === EmailSendStatus.SUCCEEDED) {
-                System.out.printf("Successfully sent the email (operation id: %s)", poller.finalResult.id)
-                saveOtp(id, email, otp)
-            } else {
-                throw RuntimeException(poller.finalResult.error.message)
-            }
-        } catch (exception: Exception) {
-            println(exception.message)
-        }
+        //TODO send otp for now to be deleted when email is implemented
+        val otpresponse = saveOtp(id, email, otp)
+        println("User OTP: $otp code: $otpresponse")
+//        val message: EmailMessage = EmailMessage()
+//            .setSenderAddress("<DoNotReply@0d93d82e-7c88-483e-be50-49579c43b2dd.azurecomm.net>")
+//            .setToRecipients("<$email>")
+//            .setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
+//            .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
+//
+//        try {
+//            val poller: SyncPoller<EmailSendResult?, EmailSendResult> =
+//                azureInitializer.emailClient!!.beginSend(message, null)
+//            var pollResponse: PollResponse<EmailSendResult?>? = null
+//            while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
+//                pollResponse = poller.poll()
+//                println("Email send poller status: " + pollResponse.status)
+//            }
+//            if (poller.finalResult.status === EmailSendStatus.SUCCEEDED) {
+//                System.out.printf("Successfully sent the email (operation id: %s)", poller.finalResult.id)
+//                saveOtp(id, email, otp)
+//            } else {
+//                throw RuntimeException(poller.finalResult.error.message)
+//            }
+//        } catch (exception: Exception) {
+//            println(exception.message)
+//        }
     }
 
     private fun saveOtp(id: String ,email: String, otp: String): String {
         val otpModel = OTPModel(id,otpUserKey, email, otp)
-        azureInitializer.userContainer?.createItem(
+        val response = azureInitializer.userContainer?.createItem(
             otpModel,
             PartitionKey(otpUserKey),
             CosmosItemRequestOptions()
         )
-        return id
+        return response?.statusCode.toString()
     }
 
     override fun registrationCancelled(email: String) {
