@@ -52,7 +52,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'kosha-microservices-app'
+          app-name: 'kosha-app'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AzureAppService_PublishProfile_73e43f36d62645229e251decf371cbdb }}
           package: 'sage-microservices-0.0.1-SNAPSHOT.jar'
