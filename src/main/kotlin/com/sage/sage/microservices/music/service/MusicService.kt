@@ -5,6 +5,7 @@ import com.sage.sage.microservices.music.model.request.AlbumModel
 import com.sage.sage.microservices.music.repository.MusicRepository
 import com.sage.sage.microservices.music.model.request.AlbumResponse
 import com.sage.sage.microservices.music.model.request.TrackResponse
+import com.sage.sage.microservices.music.model.response.SearchResponse
 import com.sage.sage.microservices.music.repository.IMusicRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -44,11 +45,11 @@ class MusicService(private val musicRepository: IMusicRepository) {
         }
     }
 
-    fun searchAlbums(query: String): ResponseEntity<List<AlbumModel>?>{
+    fun searchAlbums(query: String): ResponseEntity<SearchResponse>{
         return try {
             val allAlbums = musicRepository.getAllAlbums()
             val searchedAlbums = searchAlbums(allAlbums, query)
-            ResponseEntity(searchedAlbums, HttpStatus.OK)
+            ResponseEntity(SearchResponse(searchedAlbums), HttpStatus.OK)
         }catch (e: CosmosException){
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
