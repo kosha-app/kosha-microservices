@@ -52,4 +52,15 @@ class MusicRepository(
 
         return response?.item
     }
+
+    override fun getAllAlbums(): List<AlbumModel>? {
+        val response = azureInitializer.albumContainer?.readAllItems(
+            PartitionKey(albumKey),
+            AlbumModel::class.java
+        )
+
+        return response?.toList()
+    }
+
+
 }

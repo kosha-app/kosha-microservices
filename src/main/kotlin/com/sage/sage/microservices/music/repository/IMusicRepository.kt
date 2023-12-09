@@ -13,4 +13,6 @@ interface IMusicRepository {
     fun createAlbum(albumRequest: AlbumModel): Int?
 
     fun getAlbum(albumId: String): AlbumModel?
+
+    fun getAllAlbums(): List<AlbumModel>?
 }

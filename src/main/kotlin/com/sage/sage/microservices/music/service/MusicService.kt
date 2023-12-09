@@ -43,4 +43,29 @@ class MusicService(private val musicRepository: IMusicRepository) {
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
     }
+
+    fun searchAlbums(query: String): ResponseEntity<List<AlbumModel>?>{
+        return try {
+            val allAlbums = musicRepository.getAllAlbums()
+            val searchedAlbums = searchAlbums(allAlbums, query)
+            ResponseEntity(searchedAlbums, HttpStatus.OK)
+        }catch (e: CosmosException){
+            ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
+        }
+    }
+
+    private fun searchAlbums(
+        albums: List<AlbumModel>?,
+        query: String
+    ): List<AlbumModel>? {
+        return albums?.filter { album ->
+            // Check if the albumName, albumArtist, or any trackName/trackArtist contains the query
+            album.albumName.contains(query, ignoreCase = true) ||
+                    album.albumArtist.contains(query, ignoreCase = true) ||
+                    album.tracks.any { track ->
+                        track.trackName?.contains(query, ignoreCase = true) == true ||
+                                track.trackArtist?.contains(query, ignoreCase = true) == true
+                    }
+        }
+    }
 }
