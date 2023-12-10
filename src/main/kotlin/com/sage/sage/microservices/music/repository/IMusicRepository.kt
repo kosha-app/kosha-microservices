@@ -1,6 +1,7 @@
 package com.sage.sage.microservices.music.repository
 
 import com.sage.sage.microservices.music.model.request.AlbumModel
+import com.sage.sage.microservices.music.model.request.AlbumModel2
 import com.sage.sage.microservices.music.model.request.AlbumResponse
 import com.sage.sage.microservices.music.model.request.TrackResponse
 import org.springframework.stereotype.Repository
@@ -14,5 +15,5 @@ interface IMusicRepository {
 
     fun getAlbum(albumId: String): AlbumModel?
 
-    fun getAllAlbums(): List<AlbumModel>?
+    fun getAllAlbums(): List<AlbumModel2>?
 }

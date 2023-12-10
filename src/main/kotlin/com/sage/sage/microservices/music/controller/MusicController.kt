@@ -1,6 +1,8 @@
 package com.sage.sage.microservices.music.controller
 
 import com.sage.sage.microservices.music.model.request.AlbumModel
+import com.sage.sage.microservices.music.model.request.TrackModel
+import com.sage.sage.microservices.music.model.request.TrackModel2
 import com.sage.sage.microservices.music.service.MusicService
 import com.sage.sage.microservices.music.model.request.TrackResponse
 import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
@@ -19,7 +21,7 @@ class MusicController(private val musicService: MusicService) {
 
 
     @GetMapping("/track/{trackId}")
-    fun getTrack(@PathVariable trackId: String): ResponseEntity<TrackResponse> {
+    fun getTrack(@PathVariable trackId: String): ResponseEntity<TrackModel2> {
         return musicService.getTrack(trackId)
     }
 

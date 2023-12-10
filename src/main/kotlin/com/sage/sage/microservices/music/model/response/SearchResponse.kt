@@ -1,9 +1,7 @@
 package com.sage.sage.microservices.music.model.response
 
-import com.sage.sage.microservices.music.model.request.AlbumModel
-import com.sage.sage.microservices.music.model.request.TrackModel
-import com.sage.sage.microservices.music.model.request.TrackResponse
+import com.sage.sage.microservices.music.model.request.*
 
-class SearchAlbumsResponse(val albums: List<AlbumModel>?)
+class SearchAlbumsResponse(val albums: List<AlbumModel2>?)
 
-class SearchTracksResponse(val tracks: List<TrackModel>?)
+class SearchTracksResponse(val tracks: List<TrackModel2>?)

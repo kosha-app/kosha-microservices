@@ -32,3 +32,11 @@ class TrackModel(
         id = UUID.randomUUID().toString()
     }
 }
+
+class TrackModel2(
+    @JsonProperty("id") var id: String?,
+    @JsonProperty("trackName") val trackName: String?,
+    @JsonProperty("trackArtist") val trackArtist: String?,
+    @JsonProperty("trackUrl") val trackUrl: String?,
+    @JsonProperty("coverUrl") val coverUrl: String? = null
+)

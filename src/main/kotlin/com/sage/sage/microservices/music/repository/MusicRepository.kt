@@ -14,6 +14,7 @@ import com.google.cloud.firestore.DocumentSnapshot
 import com.google.firebase.cloud.FirestoreClient
 import com.sage.sage.microservices.azure.AzureInitializer
 import com.sage.sage.microservices.music.model.request.AlbumModel
+import com.sage.sage.microservices.music.model.request.AlbumModel2
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -53,10 +54,10 @@ class MusicRepository(
         return response?.item
     }
 
-    override fun getAllAlbums(): List<AlbumModel>? {
+    override fun getAllAlbums(): List<AlbumModel2>? {
         val response = azureInitializer.albumContainer?.readAllItems(
             PartitionKey(albumKey),
-            AlbumModel::class.java
+            AlbumModel2::class.java
         )
 
         return response?.toList()
