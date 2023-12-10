@@ -18,12 +18,12 @@ class MusicService(private val musicRepository: IMusicRepository) {
         return try {
             val allAlbums = musicRepository.getAllAlbums()
             val track = getTrackById(allAlbums, trackId)
-            if (track == null){
+            if (track == null) {
                 ResponseEntity(null, HttpStatus.NOT_FOUND)
             } else {
                 ResponseEntity(track, HttpStatus.OK)
             }
-        } catch (e: CosmosException){
+        } catch (e: CosmosException) {
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
     }
@@ -57,12 +57,12 @@ class MusicService(private val musicRepository: IMusicRepository) {
         }
     }
 
-    fun searchTrack(query: String): ResponseEntity<SearchTracksResponse>{
+    fun searchTrack(query: String): ResponseEntity<SearchTracksResponse> {
         return try {
             val allAlbums = musicRepository.getAllAlbums()
             val searchedTracks = searchTracks(allAlbums, query)
             ResponseEntity(SearchTracksResponse(searchedTracks), HttpStatus.OK)
-        } catch (e: CosmosException){
+        } catch (e: CosmosException) {
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
     }
@@ -89,7 +89,15 @@ class MusicService(private val musicRepository: IMusicRepository) {
                 if (track.trackName?.contains(query, ignoreCase = true) == true ||
                     track.trackArtist?.contains(query, ignoreCase = true) == true
                 ) {
-                    matchingTracks.add(track)
+                    matchingTracks.add(
+                        TrackModel2(
+                            id = track.id,
+                            trackName = track.trackName,
+                            trackArtist = track.trackArtist,
+                            trackUrl = track.trackUrl,
+                            coverUrl = album.coverUrl
+                        )
+                    )
                 }
             }
         }
@@ -98,18 +106,18 @@ class MusicService(private val musicRepository: IMusicRepository) {
     }
 
     fun getTrackById(albums: List<AlbumModel2>?, trackId: String): TrackModel2? {
-        var returnTrack : TrackModel2? = null
+        var returnTrack: TrackModel2? = null
 
         albums?.forEach { album ->
             album.tracks.forEach { track ->
                 if (track.id == trackId) {
-                   returnTrack = TrackModel2(
-                       id = track.id,
-                       trackName = track.trackName,
-                       trackArtist = track.trackArtist,
-                       trackUrl = track.trackUrl,
-                       coverUrl = album.coverUrl
-                   )
+                    returnTrack = TrackModel2(
+                        id = track.id,
+                        trackName = track.trackName,
+                        trackArtist = track.trackArtist,
+                        trackUrl = track.trackUrl,
+                        coverUrl = album.coverUrl
+                    )
                 }
             }
         }
