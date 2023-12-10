@@ -3,7 +3,8 @@ package com.sage.sage.microservices.music.controller
 import com.sage.sage.microservices.music.model.request.AlbumModel
 import com.sage.sage.microservices.music.service.MusicService
 import com.sage.sage.microservices.music.model.request.TrackResponse
-import com.sage.sage.microservices.music.model.response.SearchResponse
+import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
+import com.sage.sage.microservices.music.model.response.SearchTracksResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -33,8 +34,13 @@ class MusicController(private val musicService: MusicService) {
     }
 
     @GetMapping("album/search/{query}")
-    fun searchAlbums(@PathVariable query: String): ResponseEntity<SearchResponse>{
+    fun searchAlbums(@PathVariable query: String): ResponseEntity<SearchAlbumsResponse>{
         return musicService.searchAlbums(query)
+    }
+
+    @GetMapping("track/search/{query}")
+    fun searchTracks(@PathVariable query: String): ResponseEntity<SearchTracksResponse>{
+        return musicService.searchTrack(query)
     }
 
 }

@@ -4,8 +4,10 @@ import com.azure.cosmos.CosmosException
 import com.sage.sage.microservices.music.model.request.AlbumModel
 import com.sage.sage.microservices.music.repository.MusicRepository
 import com.sage.sage.microservices.music.model.request.AlbumResponse
+import com.sage.sage.microservices.music.model.request.TrackModel
 import com.sage.sage.microservices.music.model.request.TrackResponse
-import com.sage.sage.microservices.music.model.response.SearchResponse
+import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
+import com.sage.sage.microservices.music.model.response.SearchTracksResponse
 import com.sage.sage.microservices.music.repository.IMusicRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
@@ -37,20 +39,30 @@ class MusicService(private val musicRepository: IMusicRepository) {
     }
 
     fun getAlbum(albumId: String): ResponseEntity<AlbumModel?> {
-       return try {
+        return try {
             val album = musicRepository.getAlbum(albumId)
-           ResponseEntity(album, HttpStatus.OK)
-        }catch (e: CosmosException){
+            ResponseEntity(album, HttpStatus.OK)
+        } catch (e: CosmosException) {
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
     }
 
-    fun searchAlbums(query: String): ResponseEntity<SearchResponse>{
+    fun searchAlbums(query: String): ResponseEntity<SearchAlbumsResponse> {
         return try {
             val allAlbums = musicRepository.getAllAlbums()
             val searchedAlbums = searchAlbums(allAlbums, query)
-            ResponseEntity(SearchResponse(searchedAlbums), HttpStatus.OK)
-        }catch (e: CosmosException){
+            ResponseEntity(SearchAlbumsResponse(searchedAlbums), HttpStatus.OK)
+        } catch (e: CosmosException) {
+            ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
+        }
+    }
+
+    fun searchTrack(query: String): ResponseEntity<SearchTracksResponse>{
+        return try {
+            val allAlbums = musicRepository.getAllAlbums()
+            val searchedTracks = searchTracks(allAlbums, query)
+            ResponseEntity(SearchTracksResponse(searchedTracks), HttpStatus.OK)
+        } catch (e: CosmosException){
             ResponseEntity(null, HttpStatusCode.valueOf(e.statusCode))
         }
     }
@@ -60,13 +72,28 @@ class MusicService(private val musicRepository: IMusicRepository) {
         query: String
     ): List<AlbumModel>? {
         return albums?.filter { album ->
-            // Check if the albumName, albumArtist, or any trackName/trackArtist contains the query
-            album.albumName.contains(query, ignoreCase = true) ||
-                    album.albumArtist.contains(query, ignoreCase = true) ||
-                    album.tracks.any { track ->
-                        track.trackName?.contains(query, ignoreCase = true) == true ||
-                                track.trackArtist?.contains(query, ignoreCase = true) == true
-                    }
+            // Check if the albumName, albumArtist contains the query
+            album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(query, ignoreCase = true)
         }
+    }
+
+    fun searchTracks(
+        albums: List<AlbumModel>?,
+        query: String
+    ): List<TrackModel> {
+        val matchingTracks = mutableListOf<TrackModel>()
+
+        albums?.forEach { album ->
+            album.tracks.forEach { track ->
+                // Check if the trackName or trackArtist contains the query
+                if (track.trackName?.contains(query, ignoreCase = true) == true ||
+                    track.trackArtist?.contains(query, ignoreCase = true) == true
+                ) {
+                    matchingTracks.add(track)
+                }
+            }
+        }
+
+        return matchingTracks
     }
 }
