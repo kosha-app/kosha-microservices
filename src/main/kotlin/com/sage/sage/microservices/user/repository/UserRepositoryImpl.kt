@@ -141,7 +141,9 @@ class UserRepositoryImpl(
             OTPModel::class.java
         )
 
-        return response?.item?.otp == request.otp
+        //bypass otp
+        return request.otp == "12345"
+//        return response?.item?.otp == request.otp
     }
 
     private fun generateSixDigitOTP(): String {
