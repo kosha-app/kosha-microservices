@@ -73,7 +73,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
     ): List<AlbumModel2>? {
         return albums?.filter { album ->
             // Check if the albumName, albumArtist contains the query
-            album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(query, ignoreCase = true)
+            (album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(query, ignoreCase = true)) && album.tracks.size != 1
         }
     }
 
