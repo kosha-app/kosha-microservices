@@ -16,13 +16,16 @@ import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.request.UserRegistration.Companion.toUserRegistration
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
+import org.springframework.mail.SimpleMailMessage
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Repository
 import kotlin.random.Random
 
 
 @Repository
 class UserRepositoryImpl(
-    private val azureInitializer: AzureInitializer
+    private val azureInitializer: AzureInitializer,
+    private val emailSender: JavaMailSender
 ) : UserRepository {
 
     val profileUserKey = "profile"
@@ -86,34 +89,20 @@ class UserRepositoryImpl(
     }
 
 
-    override fun sendOtp(id: String, email: String) {
+    override fun sendOtp(id: String, email: String): String {
         val otp = generateSixDigitOTP()
-        //TODO send otp for now to be deleted when email is implemented
+
+        val message = SimpleMailMessage()
+        message.setFrom("noreply@kosha.com")
+        message.setTo(email)
+        message.setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
+        message.setText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
+        emailSender.send(message)
+
         val otpresponse = saveOtp(id, email, otp)
         println("User OTP: $otp code: $otpresponse")
-//        val message: EmailMessage = EmailMessage()
-//            .setSenderAddress("<DoNotReply@0d93d82e-7c88-483e-be50-49579c43b2dd.azurecomm.net>")
-//            .setToRecipients("<$email>")
-//            .setSubject(EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT)
-//            .setBodyPlainText(EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp))
-//
-//        try {
-//            val poller: SyncPoller<EmailSendResult?, EmailSendResult> =
-//                azureInitializer.emailClient!!.beginSend(message, null)
-//            var pollResponse: PollResponse<EmailSendResult?>? = null
-//            while (pollResponse == null || pollResponse.status === LongRunningOperationStatus.NOT_STARTED || pollResponse.status === LongRunningOperationStatus.IN_PROGRESS) {
-//                pollResponse = poller.poll()
-//                println("Email send poller status: " + pollResponse.status)
-//            }
-//            if (poller.finalResult.status === EmailSendStatus.SUCCEEDED) {
-//                System.out.printf("Successfully sent the email (operation id: %s)", poller.finalResult.id)
-//                saveOtp(id, email, otp)
-//            } else {
-//                throw RuntimeException(poller.finalResult.error.message)
-//            }
-//        } catch (exception: Exception) {
-//            println(exception.message)
-//        }
+
+        return otp
     }
 
     private fun saveOtp(id: String ,email: String, otp: String): String {
@@ -142,8 +131,8 @@ class UserRepositoryImpl(
         )
 
         //bypass otp
-        return request.otp == "12345"
-//        return response?.item?.otp == request.otp
+//        return request.otp == "12345"
+        return response?.item?.otp == request.otp
     }
 
     private fun generateSixDigitOTP(): String {
@@ -165,6 +154,14 @@ class UserRepositoryImpl(
         )?.find {
             it.email == email
         }
+    }
+
+    override fun getOtpById(id: String): OTPModel? {
+        return azureInitializer.userContainer?.readItem(
+            id,
+            PartitionKey(otpUserKey),
+            OTPModel::class.java
+        )?.item
     }
 
     override fun deleteByEmail(email: String): Int? {

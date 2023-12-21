@@ -1,5 +1,6 @@
 package com.sage.sage.microservices.user.repository
 
+import com.sage.sage.microservices.user.model.OTPModel
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.DeviceModel
@@ -11,7 +12,7 @@ interface UserRepository {
 
     fun create(userRegistrationRequest: UserRegistrationRequestV2): Int?
 
-    fun sendOtp(id: String, email: String)
+    fun sendOtp(id: String, email: String): String
 
     fun updateOtp(id: String, otp: String): String
 
@@ -24,6 +25,8 @@ interface UserRepository {
     fun addDevice(email: String, deviceModel: DeviceRequest): Int?
 
     fun getProfileByUserId(userId: String): User?
+
+    fun getOtpById(id: String): OTPModel?
 
     fun getByEmail(email: String): User?
 

@@ -51,11 +51,10 @@ class UserService(
     }
 
     fun resendOtp(id: String, email: String): ResponseEntity<DefaultResponse> {
-        //TODO still to reimplement resend OTP
         return try {
-            val user = userRepository.getByEmail(email)
-//            val otp = userRepository.sendOtp(email = user?.email.toString())
-//            userRepository.updateOtp(id, otp)
+            val user = userRepository.getOtpById(id)
+            val otp = userRepository.sendOtp(email = user?.email.toString(), id = id)
+            userRepository.updateOtp(id, otp)
             ResponseEntity(DefaultResponse(""),HttpStatus.OK)
         } catch (e: CosmosException) {
             ResponseEntity(DefaultResponse(e.shortMessage), HttpStatusCode.valueOf(e.statusCode))

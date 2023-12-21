@@ -27,6 +27,7 @@ dependencies {
     implementation("com.azure:azure-communication-email:1.0.2")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+//    implementation("org.springframework.boot:spring-context-support:5.2.8.RELEASE")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
 
