@@ -29,9 +29,9 @@ class DeviceController(
         return deviceService.getDevice(deviceId)
     }
 
-    @PutMapping("/logout/{deviceId}")
-    fun logDeviceOut(@PathVariable deviceId: String): ResponseEntity<DefaultResponse>{
-        return deviceService.logDeviceOut(deviceId)
-    }
+//    @PutMapping("/logout/{deviceId}")
+//    fun logDeviceOut(@PathVariable deviceId: String): ResponseEntity<DefaultResponse>{
+//        return deviceService.logDeviceOut(deviceId)
+//    }
 
 }

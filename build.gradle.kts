@@ -21,10 +21,12 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("com.azure:azure-cosmos:4.49.0")
     implementation("com.azure:azure-communication-email:1.0.2")
+    compileOnly("org.projectlombok:lombok:1.18.30")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 //    implementation("org.springframework.boot:spring-context-support:5.2.8.RELEASE")

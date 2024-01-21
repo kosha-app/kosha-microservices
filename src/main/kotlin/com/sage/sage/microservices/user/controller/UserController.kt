@@ -1,73 +1,78 @@
 package com.sage.sage.microservices.user.controller
 
+import com.azure.core.annotation.Post
+import com.azure.cosmos.CosmosException
+import com.azure.cosmos.implementation.ConflictException
+import com.azure.cosmos.implementation.CosmosError
 import com.sage.sage.microservices.user.model.ResponseType
-import com.sage.sage.microservices.user.service.UserService
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.*
+import com.sage.sage.microservices.user.service.UserService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.reactive.function.server.ServerResponse
+import reactor.core.publisher.Mono
 import java.util.concurrent.ExecutionException
+
 
 @RestController
 @RequestMapping("/user")
 class UserController(private val userService: UserService)   {
+
     @PostMapping("/register")
-    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): ResponseEntity<DefaultResponse> {
+    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): Mono<Void> {
         return userService.create(userRegistrationRequest)
     }
 
     @PostMapping("/checkemail/{email}")
-    fun checkEmail(@PathVariable email: String): ResponseEntity<CheckEmailResponse> {
+    fun checkEmail(@PathVariable email: String): Mono<CheckEmailResponse> {
         return userService.checkEmail(email)
     }
 
     @PostMapping("/signin")
-    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): ResponseEntity<DefaultResponse>{
+    fun signUserIn(@RequestBody userSignInRequest: UserSignInRequest): Mono<DefaultResponse>{
         return userService.signUserIn(userSignInRequest)
     }
 
-//    @PostMapping("/resendOtp/{email}")
-//    fun resendOtp(@PathVariable email: String): ResponseEntity<DefaultResponse>{
-//        return userService.resendOtp(email)
-//    }
+    @PostMapping("/resendOtp/{email}")
+    fun resendOtp(@PathVariable email: String): Mono<String>{
+        return userService.resendOtp(email)
+    }
 
     @PostMapping("/verification/{id}")
-    fun otpVerification(@PathVariable id: String, @RequestBody request: UserVerificationRequest): ResponseEntity<DefaultResponse>{
+    fun otpVerification(@PathVariable id: String, @RequestBody request: UserVerificationRequest): Mono<Void>{
         return userService.otpVerification(id, request)
     }
 
     @GetMapping("/profile/{userId}")
-    fun getUserInfo(@PathVariable userId: String): ResponseEntity<GetUserInfoResponse>{
+    fun getUserInfo(@PathVariable userId: String): Mono<GetUserInfoResponse>{
         return userService.getUserInfo(userId)
     }
 
     @PutMapping("/update/name/{email}")
-    fun updateName( @PathVariable email: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): ResponseEntity<DefaultResponse> {
+    fun updateName( @PathVariable email: String, @RequestBody userUpdateNameRequest: UserUpdateNameRequest): Mono<Void> {
         return userService.updateName(email, userUpdateNameRequest)
     }
 
-    @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/surname/{email}")
-    fun updateSurname( @PathVariable email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): ResponseEntity<DefaultResponse> {
+    fun updateSurname( @PathVariable email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): Mono<Void> {
         return userService.updateSurname(email, userUpdateSurnameRequest)
     }
 
-    @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/email/{email}")
-    fun updateEmail( @PathVariable email: String, userUpdateEmailRequest: UserUpdateEmailRequest): ResponseEntity<DefaultResponse> {
+    fun updateEmail( @PathVariable email: String, userUpdateEmailRequest: UserUpdateEmailRequest): Mono<Void> {
         return userService.updateEmail(email, userUpdateEmailRequest)
     }
 
-    @Throws(InterruptedException::class, ExecutionException::class)
     @PutMapping("/update/password/{email}")
-    fun updatePassword( @PathVariable email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): ResponseEntity<DefaultResponse> {
+    fun updatePassword( @PathVariable email: String, userUpdatePasswordRequest: UserUpdatePasswordRequest): Mono<Void> {
         return userService.updatePassword(email, userUpdatePasswordRequest)
     }
 
 
-    @Throws(InterruptedException::class, ExecutionException::class)
     @DeleteMapping("/delete/{email}")
-    fun deleteUser( @PathVariable email: String): ResponseEntity<DefaultResponse> {
+    fun deleteUser( @PathVariable email: String): Mono<Void> {
         return userService.deleteByEmail(email)
     }
 
@@ -75,5 +80,4 @@ class UserController(private val userService: UserService)   {
     fun test():ResponseEntity<TestResponse>{
         return ResponseEntity.ok(TestResponse(ResponseType.SUCCESS, "Test get enpoint is running Blah Blah", "Halalalalalalalalaala"))
     }
-
 }

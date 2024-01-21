@@ -56,22 +56,22 @@ class DeviceService(
         }
     }
 
-    fun logDeviceOut(deviceId: String): ResponseEntity<DefaultResponse>{
-       return try {
-            val device =  repository.getDevice(deviceId)
-            val userEmail = userRepository.getProfileByUserId(device?.userId.toString())?.email
-            val user = userRepository.getByEmail(userEmail.toString())
-
-            val currentDevices = user?.devices as ArrayList
-            currentDevices.removeIf {
-                 it.deviceId == deviceId
-            }
-
-            repository.deleteDevice(deviceId)
-            device?.userId?.let { repository.deleteDeviceFromUser(it, currentDevices as List<DeviceModel>) }
-           ResponseEntity(DefaultResponse(message = "Device logged out"), HttpStatus.OK)
-        } catch (e: CosmosException){
-            ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
-        }
-    }
+//    fun logDeviceOut(deviceId: String): ResponseEntity<DefaultResponse>{
+//       return try {
+//            val device =  repository.getDevice(deviceId)
+//            val userEmail = userRepository.getProfileByUserId(device?.userId.toString())?.email
+//            val user = userRepository.getByEmail(userEmail.toString())
+//
+//            val currentDevices = user?.devices as ArrayList
+//            currentDevices.removeIf {
+//                 it.deviceId == deviceId
+//            }
+//
+//            repository.deleteDevice(deviceId)
+//            device?.userId?.let { repository.deleteDeviceFromUser(it, currentDevices as List<DeviceModel>) }
+//           ResponseEntity(DefaultResponse(message = "Device logged out"), HttpStatus.OK)
+//        } catch (e: CosmosException){
+//            ResponseEntity(DefaultResponse(message = e.shortMessage), HttpStatusCode.valueOf(e.statusCode))
+//        }
+//    }
 }
