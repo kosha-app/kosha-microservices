@@ -34,7 +34,6 @@ class UserRepositoryImpl(
     override fun create(userRegistrationRequest: UserRegistrationRequestV2): Mono<DeviceModel> {
         val user = userRegistrationRequest.toUserRegistration()
         user.userKey = profileUserKey
-        user.isVerified = false
         azureInitializer.userContainer?.createItem(
             user,
             PartitionKey(user.userKey),

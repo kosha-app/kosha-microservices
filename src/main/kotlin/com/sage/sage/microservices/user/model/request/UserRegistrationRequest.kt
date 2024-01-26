@@ -38,14 +38,13 @@ class UserRegistration(
     val gender: String,
     val cellNumber: String?,
     val devices: List<DeviceRequest>,
-    var isVerified: Boolean?
 ){
     companion object{
         fun UserRegistrationRequestV2.toUserRegistration(): UserRegistration{
             val registerDevice = listOf(DeviceRequest(deviceId = deviceId))
             val id: String = UUID.randomUUID().toString()
             val userKey = null
-            val isVerified = null
+            val email = email.lowercase()
             return UserRegistration(
                 id ,
                 userKey,
@@ -55,8 +54,7 @@ class UserRegistration(
                 dateOfBirth,
                 gender,
                 cellNumber,
-                registerDevice,
-                isVerified
+                registerDevice
             )
         }
     }

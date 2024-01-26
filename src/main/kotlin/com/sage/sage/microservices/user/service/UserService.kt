@@ -29,7 +29,7 @@ class UserService(
     }
 
     fun checkEmail(email: String): Mono<CheckEmailResponse> {
-        return userRepository.getByEmail(email)
+        return userRepository.getByEmail(email.lowercase())
             .flatMap {
                 Mono.error<CheckEmailResponse>(
                     KoshaGatewayException(
