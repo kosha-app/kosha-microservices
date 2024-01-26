@@ -35,12 +35,12 @@ class MusicController(private val musicService: MusicService) {
     }
 
     @GetMapping("album/search/{query}")
-    fun searchAlbums(@PathVariable query: String): Flux<AlbumModel2>{
+    fun searchAlbums(@PathVariable query: String): Mono<SearchAlbumsResponse> {
         return musicService.searchAlbums(query)
     }
 
     @GetMapping("track/search/{query}")
-    fun searchTracks(@PathVariable query: String): Flux<TrackModel2>{
+    fun searchTracks(@PathVariable query: String): Mono<SearchTracksResponse>{
         return musicService.searchTrack(query)
     }
 

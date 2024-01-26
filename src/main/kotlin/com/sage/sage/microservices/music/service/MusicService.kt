@@ -34,15 +34,17 @@ class MusicService(private val musicRepository: IMusicRepository) {
         return musicRepository.getAlbum(albumId)
     }
 
-    fun searchAlbums(query: String): Flux<AlbumModel2> {
+    fun searchAlbums(query: String): Mono<SearchAlbumsResponse> {
         return musicRepository.getAllAlbums()
             .filter { album ->
                 (album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(query, ignoreCase = true))
                         && album.tracks.size != 1
             }
+            .collectList()
+            .map { albums -> SearchAlbumsResponse(albums) }
     }
 
-    fun searchTrack(query: String): Flux<TrackModel2> {
+    fun searchTrack(query: String): Mono<SearchTracksResponse> {
         return musicRepository.getAllAlbums()
             .flatMapIterable { album ->
                 album.tracks.map { track ->
@@ -59,19 +61,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
                     coverUrl = coverUrl
                 )
             }
-    }
-
-    private fun searchAlbums(
-        albums: List<AlbumModel2>?,
-        query: String
-    ): Flux<AlbumModel2>? {
-        val searchedAlbums = albums?.filter { album ->
-            (album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(query, ignoreCase = true)) && album.tracks.size != 1
-        }
-        if (searchedAlbums != null) {
-            return Flux.fromIterable(searchedAlbums.toList())
-        } else {
-            return Flux.empty()
-        }
+            .collectList()
+            .map { tracks -> SearchTracksResponse(tracks) }
     }
 }
