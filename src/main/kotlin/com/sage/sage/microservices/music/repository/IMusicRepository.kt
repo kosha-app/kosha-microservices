@@ -2,18 +2,16 @@ package com.sage.sage.microservices.music.repository
 
 import com.sage.sage.microservices.music.model.request.AlbumModel
 import com.sage.sage.microservices.music.model.request.AlbumModel2
-import com.sage.sage.microservices.music.model.request.AlbumResponse
-import com.sage.sage.microservices.music.model.request.TrackResponse
 import org.springframework.stereotype.Repository
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
 @Repository
 interface IMusicRepository {
 
-    fun getTrack(trackID: String): TrackResponse
+    fun createAlbum(albumRequest: AlbumModel): Mono<Void>
 
-    fun createAlbum(albumRequest: AlbumModel): Int?
+    fun getAlbum(albumId: String): Mono<AlbumModel>
 
-    fun getAlbum(albumId: String): AlbumModel?
-
-    fun getAllAlbums(): List<AlbumModel2>?
+    fun getAllAlbums(): Flux<AlbumModel2>
 }
