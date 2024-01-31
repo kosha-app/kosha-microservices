@@ -3,12 +3,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "3.1.3"
     id("io.spring.dependency-management") version "1.1.3"
+    id("jacoco")
     kotlin("jvm") version "1.8.22"
     kotlin("plugin.spring") version "1.8.22"
 }
 
 group = "com.sage"
 version = "0.0.1-SNAPSHOT"
+
+jacoco {
+    toolVersion = "0.8.7" // Adapt version based on your Gradle and Jacoco versions
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -51,4 +56,36 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+sourceSets {
+    getByName("main").java.srcDirs("src/main/java")
+    getByName("test").java.srcDirs("src/test/java")
+}
+
+tasks.withType<JacocoReport> {
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.map { file ->
+            fileTree(file).apply {
+//                exclude("com/example/SomeClass.class", "com/example/somepackage/**")
+            }
+        }))
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.2.toBigDecimal()
+                counter = "LINE"
+            }
+        }
+    }
+}
+
+tasks {
+    named("build") {
+        dependsOn(jacocoTestCoverageVerification)
+    }
 }
