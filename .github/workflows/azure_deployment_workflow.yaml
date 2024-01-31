@@ -27,7 +27,7 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          ./gradlew clean build -x test
+          ./gradlew clean build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
