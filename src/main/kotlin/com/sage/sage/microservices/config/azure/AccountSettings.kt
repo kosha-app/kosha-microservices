@@ -13,13 +13,8 @@ import com.azure.cosmos.implementation.apachecommons.lang.StringUtils
  * command-line option.
  *  * You can set ACCOUNT_KEY and ACCOUNT_HOST as environment variables.
  *
- *
- * If none of the above is set, emulator endpoint will be used.
- * Emulator http cert is self signed. If you are using emulator,
- * make sure emulator https certificate is imported
- * to java trusted cert store:
- * https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator-export-ssl-certificates
- */
+ ***/
+
 object AccountSettings {
     // Replace MASTER_KEY and HOST with values from your Azure Cosmos DB account.
     // The default values are credentials of the local emulator, which are not used in any production environment.
