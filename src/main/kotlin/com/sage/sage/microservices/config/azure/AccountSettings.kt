@@ -1,4 +1,4 @@
-package com.sage.sage.microservices.azure
+package com.sage.sage.microservices.config.azure
 
 import com.azure.cosmos.implementation.apachecommons.lang.StringUtils
 

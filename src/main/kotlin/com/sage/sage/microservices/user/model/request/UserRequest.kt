@@ -3,24 +3,18 @@ package com.sage.sage.microservices.user.model.request
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class UserUpdateNameRequest(
-        var newName: String
+        @JsonProperty("newName") var newName: String
 )
 
-class UserUpdateSurnameRequest(
-        val newSurname: String
+data class UserUpdatePasswordRequest(
+        @JsonProperty("newPassword") val newPassword: String = ""
 )
 
-class UserUpdatePasswordRequest(
-        val newPassword: String
+data class UserUpdateEmailRequest(
+        @JsonProperty("newEmail") val newEmail: String = ""
 )
 
-class UserUpdateEmailRequest(
-        val newEmail: String
-)
 
-class UserUpdateVerificationRequest(
-        val newVerification: Boolean
-)
 
 class UserVerificationRequest(
         @JsonProperty("otp") val otp: String

@@ -2,7 +2,7 @@ package com.sage.sage.microservices.music.repository
 
 import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.PartitionKey
-import com.sage.sage.microservices.azure.AzureInitializer
+import com.sage.sage.microservices.config.azure.AzureInitializer
 import com.sage.sage.microservices.music.model.request.AlbumModel
 import com.sage.sage.microservices.music.model.request.AlbumModel2
 import org.springframework.stereotype.Repository

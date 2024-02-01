@@ -1,21 +1,17 @@
 package com.sage.sage.microservices.exception
 
 import com.azure.cosmos.CosmosException
-import com.azure.cosmos.implementation.BadRequestException
 import com.azure.cosmos.implementation.ConflictException
 import com.azure.cosmos.implementation.NotFoundException
+import com.sage.sage.microservices.exception.exceptionobjects.ApiError
+import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
 import lombok.extern.slf4j.Slf4j
-import org.apache.commons.logging.Log
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler
 import java.time.LocalDateTime
 
 private const val DEFAULT_MESSAGE = "We are experiencing problems in processing your request. Please try again."

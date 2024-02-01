@@ -1,74 +1,129 @@
-//package com.sage.sage.microservices.device.service
-//
-//import com.azure.cosmos.CosmosException
-//import com.sage.sage.microservices.azure.AzureInitializer
-//import com.sage.sage.microservices.device.model.response.CheckDeviceResponse
-//import com.sage.sage.microservices.device.repository.DeviceRepository
-//import com.sage.sage.microservices.device.repository.IDeviceRepository
-//import com.sage.sage.microservices.user.model.response.DeviceModel
-//import org.junit.jupiter.api.Assertions.assertEquals
-//import org.junit.jupiter.api.BeforeEach
-//import org.junit.jupiter.api.Test
-//import org.mockito.InjectMocks
-//import org.mockito.Mock
-//import org.mockito.Mockito.`when`
-//import org.springframework.http.HttpStatus
-//import org.springframework.http.ResponseEntity
-//
-//class DeviceServiceTest {
-//
-//    @Mock
-//    private lateinit var repository: IDeviceRepository
-//
-//    @Mock
-//    private lateinit var azureInitializer: AzureInitializer
-//
-//    @InjectMocks
-//    private lateinit var service: DeviceService
-//
-//    @BeforeEach
-//    fun setUp() {
-//        repository = DeviceRepository(azureInitializer)
-//        `when`(repository.getDevice("device1")).thenReturn(DeviceModel("id", userKey = "Key", userId = "userId"))
-//        `when`(repository.getDevice("device2")).thenThrow(CosmosException(404, "Device not found", null, null))
-//        `when`(repository.getDevice("device3")).thenThrow(CosmosException(500, "Internal server error", null, null))
-//        CosmosException()
-//    }
-//
-//    @Test
-//    fun testCheckDeviceWhenDeviceFoundThenReturnOk() {
-//        // Arrange
-//        val expectedResponse = ResponseEntity(CheckDeviceResponse(true, "Device Logged in with user"), HttpStatus.OK)
-//
-//        // Act
-//        val actualResponse = service.checkDevice("device1")
-//
-//        // Assert
-//        assertEquals(expectedResponse, actualResponse)
-//    }
-//
-//    @Test
-//    fun testCheckDeviceWhenDeviceNotFoundThenReturnNotFound() {
-//        // Arrange
-//        val expectedResponse = ResponseEntity(CheckDeviceResponse(false, "Device not logged in"), HttpStatus.NOT_FOUND)
-//
-//        // Act
-//        val actualResponse = service.checkDevice("device2")
-//
-//        // Assert
-//        assertEquals(expectedResponse, actualResponse)
-//    }
-//
-//    @Test
-//    fun testCheckDeviceWhenRepositoryThrowsExceptionThenReturnExceptionStatus() {
-//        // Arrange
-//        val expectedResponse =
-//            ResponseEntity(CheckDeviceResponse(null, "Internal server error"), HttpStatus.INTERNAL_SERVER_ERROR)
-//
-//        // Act
-//        val actualResponse = service.checkDevice("device3")
-//
-//        // Assert
-//        assertEquals(expectedResponse, actualResponse)
-//    }
-//}
+package com.sage.sage.microservices.device.service
+
+import com.sage.sage.microservices.device.repository.IDeviceRepository
+import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
+import com.sage.sage.microservices.user.model.User
+import com.sage.sage.microservices.user.model.response.DeviceModel
+import com.sage.sage.microservices.user.model.response.DeviceRequest
+import com.sage.sage.microservices.user.repository.UserRepository
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
+import reactor.core.publisher.Mono
+
+import reactor.test.StepVerifier
+import kotlin.collections.ArrayList
+
+class DeviceServiceTest {
+
+    // Mocking the dependencies
+    private val repository: IDeviceRepository = mock(IDeviceRepository::class.java)
+    private val userRepository: UserRepository = mock(UserRepository::class.java)
+
+    // Creating the instance of DeviceService with mocked dependencies
+    private val deviceService = DeviceService(repository, userRepository)
+
+    @Test
+    fun `checkDevice should return Mono error for non-existent device`() {
+        // Arrange
+        val deviceId = "device-id"
+
+        // Mocking the behavior of getDevice to return an empty Mono
+        `when`(repository.getDevice(deviceId)).thenReturn(Mono.empty())
+
+        // Act
+        val result = deviceService.checkDevice(deviceId)
+
+        // Assert
+        StepVerifier.create(result)
+            .expectError(KoshaGatewayException::class.java)
+            .verify()
+
+    }
+
+    @Test
+    fun `checkDevice should return Mono empty for existing device`() {
+        // Arrange
+        val deviceId = "device-id"
+        val existingDevice = DeviceModel(deviceId, "userKey", "userId")
+
+        // Mocking the behavior of getDevice to return a Mono with an existing device
+        `when`(repository.getDevice(deviceId)).thenReturn(Mono.just(existingDevice))
+
+        // Act
+        val result = deviceService.checkDevice(deviceId)
+
+        // Assert
+        StepVerifier.create(result)
+            .expectComplete()
+            .verify()
+    }
+
+    @Test
+    fun `getDevice should return Mono GetDeviceResponse`() {
+        // Arrange
+        val deviceId = "device-id"
+        val userId = "userId"
+        val existingDevice = DeviceModel(deviceId, "userKey", userId)
+
+        // Mocking the behavior of getDevice to return a Mono with an existing device
+        `when`(repository.getDevice(deviceId)).thenReturn(Mono.just(existingDevice))
+
+        // Act
+        val result = deviceService.getDevice(deviceId)
+
+        // Assert
+        StepVerifier.create(result)
+            .assertNext {
+                assertEquals(it.userId, userId)
+            }
+            .verifyComplete()
+    }
+
+    @Test
+    fun `getDevice should throws NotFoundException`() {
+        // Arrange
+        val deviceId = "device-id"
+
+        // Mocking the behavior of getDevice to return a Mono with an existing device
+        `when`(repository.getDevice(deviceId)).thenReturn(Mono.empty())
+
+        // Act
+        val result = deviceService.getDevice(deviceId)
+
+        // Assert
+        StepVerifier.create(result)
+            .expectError(KoshaGatewayException::class.java)
+            .verify()
+    }
+
+    @Test
+    fun `logDeviceOut should remove device, delete from repository, and amend user devices`() {
+        // Arrange
+        val deviceId = "existing-device-id"
+        val userId = "user-id"
+        val devices = ArrayList<DeviceRequest>()
+        devices.add(DeviceRequest(deviceId))
+        devices.add(DeviceRequest("deviceId2"))
+        devices.add(DeviceRequest("deviceId3"))
+        val existingDevice = DeviceModel(deviceId,"", userId)
+        val user = User(userId, "", "", "", "", "", "", "", devices, false )
+
+        `when`(repository.getDevice(deviceId)).thenReturn(Mono.just(existingDevice))
+        `when`(userRepository.getProfileByUserId(userId)).thenReturn(Mono.just(user))
+        `when`(repository.deleteDevice(deviceId)).thenReturn(Mono.empty())
+        `when`(repository.amendUserDevices(userId, devices as List<DeviceModel>)).thenReturn(Mono.empty())
+
+        // Act
+        val result = deviceService.logDeviceOut(deviceId)
+
+        // Assert
+        StepVerifier.create(result)
+            .expectComplete()
+            .verify()
+
+        verify(repository).amendUserDevices(userId, devices as List<DeviceModel>)
+        verify(repository).deleteDevice(deviceId)
+    }
+
+}

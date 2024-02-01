@@ -1,21 +1,14 @@
 package com.sage.sage.microservices.user.service
 
-import com.azure.cosmos.CosmosException
-import com.azure.cosmos.implementation.ConflictException
-import com.sage.sage.microservices.exception.KoshaGatewayException
-import com.sage.sage.microservices.exception.McaHttpResponseCode
+import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
+import com.sage.sage.microservices.exception.exceptionobjects.McaHttpResponseCode
 import com.sage.sage.microservices.user.repository.UserRepository
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.*
 import com.sage.sage.microservices.user.model.response.GetUserInfoResponse.Companion.toGetUserInfo
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import java.util.UUID
-import javax.swing.text.html.parser.Entity
 
 @Service
 class UserService(
@@ -47,10 +40,10 @@ class UserService(
     }
 
     fun otpVerification(id: String, request: UserVerificationRequest): Mono<Void> {
-       return userRepository.otpVerification(id, request).flatMap { isVerified ->
-            if (isVerified){
+        return userRepository.otpVerification(id, request).flatMap { isVerified ->
+            if (isVerified) {
                 Mono.empty()
-            } else{
+            } else {
                 Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_UNAUTHORISED, "OTP does not match"))
             }
         }
@@ -65,18 +58,17 @@ class UserService(
                         userKey = "device",
                         userId = user.id
                     )
-                ).then(Mono.defer {
-                    userRepository.addDevice(
-                        email = userSignInRequest.email,
-                        deviceModel = DeviceRequest(
-                            deviceId = userSignInRequest.deviceId
-                        )
-                    ).then(
-                        Mono.defer {
-                            Mono.just(DefaultResponse(""))
-                        }
+                )
+                userRepository.addDevice(
+                    email = userSignInRequest.email,
+                    deviceModel = DeviceRequest(
+                        deviceId = userSignInRequest.deviceId
                     )
-                })
+                )
+                Mono.defer {
+                    Mono.just(DefaultResponse(""))
+                }
+
             } else {
                 Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_UNAUTHORISED, "Password Incorrect"))
             }
@@ -99,13 +91,6 @@ class UserService(
 
     fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): Mono<Void> {
         return userRepository.updateName(email, userUpdateNameRequest)
-    }
-
-    fun updateSurname(
-        email: String,
-        userUpdateSurnameRequest: UserUpdateSurnameRequest
-    ): Mono<Void> {
-        return userRepository.updateSurname(email, userUpdateSurnameRequest)
     }
 
     fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): Mono<Void> {

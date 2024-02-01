@@ -1,13 +1,9 @@
 package com.sage.sage.microservices.user.repository
 
-import com.azure.core.util.polling.SyncPoller
-import com.azure.cosmos.CosmosException
 import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
-import com.sage.sage.microservices.azure.AzureInitializer
-import com.sage.sage.microservices.exception.KoshaGatewayException
-import com.sage.sage.microservices.exception.McaHttpResponseCode
+import com.sage.sage.microservices.config.azure.AzureInitializer
 import com.sage.sage.microservices.user.model.OTPModel
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
@@ -190,18 +186,6 @@ class UserRepositoryImpl(
                 .replace("/otp", otp), OTPModel::class.java
         )
         return Mono.empty()
-    }
-
-    override fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): Mono<Void> {
-        return getByEmail(email).flatMap { user ->
-            azureInitializer.userContainer?.patchItem(
-                user?.id,
-                PartitionKey(profileUserKey),
-                CosmosPatchOperations.create()
-                    .replace("/surname", userUpdateSurnameRequest.newSurname), User::class.java
-            )
-            Mono.empty()
-        }
     }
 
     override fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): Mono<Void> {

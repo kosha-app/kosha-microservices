@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException
 class UserController(private val userService: UserService)   {
 
     @PostMapping("/register")
-    fun createUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): Mono<Void> {
+    fun registerUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): Mono<Void> {
         return userService.create(userRegistrationRequest)
     }
 
@@ -55,11 +55,6 @@ class UserController(private val userService: UserService)   {
         return userService.updateName(email, userUpdateNameRequest)
     }
 
-    @PutMapping("/update/surname/{email}")
-    fun updateSurname( @PathVariable email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): Mono<Void> {
-        return userService.updateSurname(email, userUpdateSurnameRequest)
-    }
-
     @PutMapping("/update/email/{email}")
     fun updateEmail( @PathVariable email: String, userUpdateEmailRequest: UserUpdateEmailRequest): Mono<Void> {
         return userService.updateEmail(email, userUpdateEmailRequest)
@@ -74,10 +69,5 @@ class UserController(private val userService: UserService)   {
     @DeleteMapping("/delete/{email}")
     fun deleteUser( @PathVariable email: String): Mono<Void> {
         return userService.deleteByEmail(email)
-    }
-
-    @GetMapping("/test")
-    fun test():ResponseEntity<TestResponse>{
-        return ResponseEntity.ok(TestResponse(ResponseType.SUCCESS, "Test get enpoint is running Blah Blah", "Halalalalalalalalaala"))
     }
 }

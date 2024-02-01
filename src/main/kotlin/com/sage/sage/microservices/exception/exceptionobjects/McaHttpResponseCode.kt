@@ -1,4 +1,4 @@
-package com.sage.sage.microservices.exception
+package com.sage.sage.microservices.exception.exceptionobjects
 
 import org.springframework.http.HttpStatus
 

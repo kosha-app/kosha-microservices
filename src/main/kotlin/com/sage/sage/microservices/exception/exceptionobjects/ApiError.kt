@@ -1,4 +1,4 @@
-package com.sage.sage.microservices.exception
+package com.sage.sage.microservices.exception.exceptionobjects
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import org.springframework.http.HttpStatus

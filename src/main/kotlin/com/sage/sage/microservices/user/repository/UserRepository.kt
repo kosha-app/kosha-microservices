@@ -37,7 +37,5 @@ interface UserRepository {
 
     fun updateEmail(email: String, userUpdateEmailRequest: UserUpdateEmailRequest): Mono<Void>
 
-    fun updateSurname(email: String, userUpdateSurnameRequest: UserUpdateSurnameRequest): Mono<Void>
-
     fun updateName(email: String, userUpdateNameRequest: UserUpdateNameRequest): Mono<Void>
 }

@@ -1,16 +1,11 @@
 package com.sage.sage.microservices.music.service
 
-import com.azure.cosmos.CosmosException
-import com.sage.sage.microservices.exception.KoshaGatewayException
-import com.sage.sage.microservices.exception.McaHttpResponseCode
+import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
+import com.sage.sage.microservices.exception.exceptionobjects.McaHttpResponseCode
 import com.sage.sage.microservices.music.model.request.*
-import com.sage.sage.microservices.music.repository.MusicRepository
 import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
 import com.sage.sage.microservices.music.model.response.SearchTracksResponse
 import com.sage.sage.microservices.music.repository.IMusicRepository
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -32,6 +27,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
 
     fun getAlbum(albumId: String): Mono<AlbumModel> {
         return musicRepository.getAlbum(albumId)
+            .switchIfEmpty(Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_ITEM_NOT_FOUND_EXCEPTION, "")))
     }
 
     fun searchAlbums(query: String): Mono<SearchAlbumsResponse> {

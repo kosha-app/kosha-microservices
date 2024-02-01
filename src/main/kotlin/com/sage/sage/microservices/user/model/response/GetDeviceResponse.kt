@@ -1,5 +1,6 @@
 package com.sage.sage.microservices.user.model.response
 
-import com.azure.core.annotation.Get
+import com.fasterxml.jackson.annotation.JsonProperty
 
-class GetDeviceResponse ( val userId: String)
+
+class GetDeviceResponse ( @JsonProperty("userId") val userId: String)

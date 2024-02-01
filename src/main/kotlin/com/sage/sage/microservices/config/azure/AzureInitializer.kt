@@ -1,11 +1,10 @@
-package com.sage.sage.microservices.azure
+package com.sage.sage.microservices.config.azure
 
 import com.azure.communication.email.EmailClient
 import com.azure.communication.email.EmailClientBuilder
 import com.azure.cosmos.*
 import com.azure.cosmos.models.CosmosContainerProperties
 import com.azure.cosmos.models.CosmosContainerResponse
-import com.azure.cosmos.models.PartitionKeyDefinition
 import org.springframework.stereotype.Component
 
 

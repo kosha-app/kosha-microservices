@@ -4,7 +4,7 @@ import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.sage.sage.microservices.azure.AzureInitializer
+import com.sage.sage.microservices.config.azure.AzureInitializer
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import org.springframework.stereotype.Repository

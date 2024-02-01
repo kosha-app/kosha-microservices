@@ -8,6 +8,16 @@ plugins {
     kotlin("plugin.spring") version "1.8.22"
 }
 
+val exclusions = listOf(
+    "com/sage/sage/microservices/device/repository/**",
+    "com/sage/sage/microservices/user/repository/**",
+    "com/sage/sage/microservices/music/repository/**",
+    "com/sage/sage/microservices/music/model/**",
+    "com/sage/sage/microservices/user/model/**",
+    "com/sage/sage/microservices/exception/exceptionobjects/**",
+    "com/sage/sage/microservices/config/azure/**",
+    "com/sage/sage/microservices/user/email/**",
+)
 group = "com.sage"
 version = "0.0.1-SNAPSHOT"
 
@@ -29,6 +39,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test:3.4.10")
     implementation("com.azure:azure-cosmos:4.49.0")
     implementation("com.azure:azure-communication-email:1.0.2")
     compileOnly("org.projectlombok:lombok:1.18.30")
@@ -58,6 +69,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+tasks.withType<Test>().configureEach {
+    finalizedBy("jacocoTestReport")
+}
+
 sourceSets {
     getByName("main").java.srcDirs("src/main/java")
     getByName("test").java.srcDirs("src/test/java")
@@ -67,7 +82,7 @@ tasks.withType<JacocoReport> {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.map { file ->
             fileTree(file).apply {
-//                exclude("com/example/SomeClass.class", "com/example/somepackage/**")
+                exclude(exclusions)
             }
         }))
     }
@@ -77,7 +92,7 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.2.toBigDecimal()
+                minimum = 0.55.toBigDecimal()
                 counter = "LINE"
             }
         }
@@ -86,6 +101,7 @@ tasks.jacocoTestCoverageVerification {
 
 tasks {
     named("build") {
+        dependsOn(test)
         dependsOn(jacocoTestCoverageVerification)
     }
 }
