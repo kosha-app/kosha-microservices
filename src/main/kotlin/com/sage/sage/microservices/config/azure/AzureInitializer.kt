@@ -69,7 +69,7 @@ class AzureInitializer {
         //  Create database if not exists
         val databaseResponse = client.createDatabaseIfNotExists(userDatabaseName)
         database = client.getDatabase(databaseResponse.properties.id)
-        logger.info("Checking database " + database?.id + " completed!\n")
+        logger.info("Checking database  ${database?.id}  completed!\n")
     }
 
     @Throws(java.lang.Exception::class)

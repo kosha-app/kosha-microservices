@@ -2,8 +2,8 @@ name: Build Gradle
 
 on:
   pull_request:
+    branches: [master, deploy-to-prod]
     types: [opened, reopened, synchronize]
-  workflow_dispatch:
 
 jobs:
   build:
