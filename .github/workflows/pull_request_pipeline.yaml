@@ -1,7 +1,6 @@
 name: Build Gradle
 
 on:
-  push:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
