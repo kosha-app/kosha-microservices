@@ -4,8 +4,8 @@ on:
   push:
     branches: [master, deploy-to-prod]
   pull_request:
+    branches: [master, deploy-to-prod]
     types: [opened, reopened, synchronize]
-  workflow_dispatch:
 
 jobs:
   build:
