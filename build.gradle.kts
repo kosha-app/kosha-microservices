@@ -79,6 +79,10 @@ sourceSets {
 }
 
 tasks.withType<JacocoReport> {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+    }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.map { file ->
             fileTree(file).apply {
