@@ -2,4 +2,4 @@
 
 spring:
   profiles:
-    active: production
+    active: dev
