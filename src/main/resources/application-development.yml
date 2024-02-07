@@ -4,5 +4,4 @@ spring:
       on-profile: dev
 
 features:
-  toggleFeatureA: false
-  toggleFeatureB: true
+  otpBypass: true
