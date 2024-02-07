@@ -49,7 +49,7 @@ jobs:
           path: '${{ github.workspace }}/build/libs/*.jar'
 
   deploy:
-    if: github.ref == 'refs/heads/deployer-master'
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: build
     environment:
