@@ -6,6 +6,5 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "features")
 class KoshaProdFeatureToggles {
-    var toggleFeatureA: Boolean = false
-    var toggleFeatureB: Boolean = false
+    var otpBypass: Boolean = false
 }

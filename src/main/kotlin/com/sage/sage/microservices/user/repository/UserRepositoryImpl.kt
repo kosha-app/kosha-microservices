@@ -4,6 +4,7 @@ import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.azure.cosmos.models.CosmosPatchOperations
 import com.azure.cosmos.models.PartitionKey
 import com.sage.sage.microservices.config.azure.AzureInitializer
+import com.sage.sage.microservices.featuretoggles.KoshaProdFeatureToggles
 import com.sage.sage.microservices.user.model.OTPModel
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
@@ -20,7 +21,8 @@ import kotlin.random.Random
 @Repository
 class UserRepositoryImpl(
     private val azureInitializer: AzureInitializer,
-    private val emailSender: JavaMailSender
+    private val emailSender: JavaMailSender,
+    private val featureToggles: KoshaProdFeatureToggles
 ) : UserRepository {
 
     val profileUserKey = "profile"
@@ -117,9 +119,12 @@ class UserRepositoryImpl(
             PartitionKey(otpUserKey),
             OTPModel::class.java
         )
-        //bypass otp
-//        return request.otp == "12345"
-        return Mono.just(response?.item?.otp == request.otp)
+
+        return if (featureToggles.otpBypass){
+            Mono.just(request.otp == "12345")
+        }else {
+            Mono.just(response?.item?.otp == request.otp)
+        }
     }
 
     private fun generateSixDigitOTP(): String {
