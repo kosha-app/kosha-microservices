@@ -5,12 +5,7 @@ import com.sage.sage.microservices.music.service.MusicService
 import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
 import com.sage.sage.microservices.music.model.response.SearchTracksResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
@@ -24,6 +19,7 @@ class MusicController(private val musicService: MusicService) {
         return musicService.getTrack(trackId)
     }
 
+    @CrossOrigin
     @PostMapping("album/add")
     fun createAlbum(@RequestBody albumRequest: AlbumModel): Mono<Void>{
        return musicService.createAlbum(albumRequest)
