@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
-@CrossOrigin(origins = ["http://localhost:3000"])
+@CrossOrigin(origins = ["https://kosha-871a8.firebaseapp.com/"])
 @RestController
 @RequestMapping("/music")
 class MusicController(private val musicService: MusicService) {
@@ -19,6 +19,7 @@ class MusicController(private val musicService: MusicService) {
     fun getTrack(@PathVariable trackId: String): Mono<TrackModel2> {
         return musicService.getTrack(trackId)
     }
+
     @PostMapping("album/add")
     fun createAlbum(@RequestBody albumRequest: AlbumModel): Mono<Void>{
        return musicService.createAlbum(albumRequest)
