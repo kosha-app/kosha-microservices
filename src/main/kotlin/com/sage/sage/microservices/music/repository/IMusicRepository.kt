@@ -14,4 +14,6 @@ interface IMusicRepository {
     fun getAlbum(albumId: String): Mono<AlbumModel>
 
     fun getAllAlbums(): Flux<AlbumModel2>
+
+    fun updateTrackPlayed(albumId: String, trackId: String): Mono<Void>
 }
