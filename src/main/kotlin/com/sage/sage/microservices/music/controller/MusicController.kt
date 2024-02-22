@@ -1,6 +1,8 @@
 package com.sage.sage.microservices.music.controller
 
 import com.sage.sage.microservices.music.model.request.*
+import com.sage.sage.microservices.music.model.response.ArtistPopularTracksResponse
+import com.sage.sage.microservices.music.model.response.PopularArtistResponse
 import com.sage.sage.microservices.music.service.MusicService
 import com.sage.sage.microservices.music.model.response.SearchAlbumsResponse
 import com.sage.sage.microservices.music.model.response.SearchTracksResponse
@@ -39,5 +41,45 @@ class MusicController(private val musicService: MusicService) {
     fun searchTracks(@PathVariable query: String): Mono<SearchTracksResponse>{
         return musicService.searchTrack(query)
     }
+
+    @PutMapping("/played/{trackId}")
+    fun trackPlayed(@PathVariable trackId: String): Mono<Void> {
+        return musicService.trackPlayed(trackId)
+    }
+
+//    @GetMapping("/playlists/editors-picks")
+//    fun getEditorsPicks(@PathVariable trackId: String): Mono<Void> {
+//        return Mono.empty()
+//    }
+
+//    @PutMapping("/playlists/recently-played")
+//    fun updateRecentlyPlayer(@PathVariable trackId: String): Mono<Void> {
+//        return Mono.empty()
+//    }
+
+//    @PutMapping("/last-played/{deiveid}")
+//    fun updateLastPlayed(@PathVariable deviceId: String): Mono<Void> {
+//        return Mono.empty()
+//    }
+
+//    @GetMapping("/playlists/recently-played")
+//    fun getRecentlyPlayed(@PathVariable trackId: String): Mono<Void> {
+//        return Mono.empty()
+//    }
+
+    @GetMapping("/popular-artist-tracks/{artist}")
+    fun getPopularArtistsTracks(@PathVariable artist: String): Mono<ArtistPopularTracksResponse> {
+        return musicService.getArtistPopularTracks(artist)
+    }
+
+    @GetMapping("/popular-artist")
+    fun getPopularArtists(): Mono<PopularArtistResponse> {
+        return musicService.getMostPlayedArtists()
+    }
+
+//    @GetMapping("/popular-releases")
+//    fun getPopularAlbums(@PathVariable trackId: String): Mono<Void> {
+//        return Mono.empty()
+//    }
 
 }
