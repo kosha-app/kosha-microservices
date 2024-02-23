@@ -11,7 +11,7 @@ interface IMusicRepository {
 
     fun createAlbum(albumRequest: AlbumModel): Mono<Void>
 
-    fun getAlbum(albumId: String): Mono<AlbumModel>
+    fun getAlbum(albumId: String): Mono<AlbumModel2>
 
     fun getAllAlbums(): Flux<AlbumModel2>
 

@@ -92,7 +92,7 @@ class MusicServiceTest {
 
     @Test
     fun `getAlbum should return Mono AlbumModel for existent album`(){
-        val album = AlbumModel("album-id","","AlbumName","AlbumArtist","20 July 1999","CoverUrl", listOf(TrackModel("music-id", "TrackName", "ArtistName","features",12, "trackUrl")))
+        val album = AlbumModel2("album-id","","AlbumName","AlbumArtist","20 July 1999","CoverUrl", listOf(TrackModel2("music-id", "TrackName", "ArtistName","features",12, "trackUrl")))
 
 
         // Mocking the behavior of getDevice to return a Mono with an existing device
