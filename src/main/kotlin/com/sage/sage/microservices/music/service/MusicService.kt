@@ -105,7 +105,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
         return musicRepository.createAlbum(albumRequest)
     }
 
-    fun getAlbum(albumId: String): Mono<AlbumModel> {
+    fun getAlbum(albumId: String): Mono<AlbumModel2> {
         return musicRepository.getAlbum(albumId)
             .switchIfEmpty(Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_ITEM_NOT_FOUND_EXCEPTION, "")))
     }

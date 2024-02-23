@@ -62,7 +62,7 @@ class MusicControllerTest {
     @Test
     fun `test getAlbum endpoint`(){
         val albumId = "album-id"
-        val album = AlbumModel("album-id","","AlbumName","AlbumArtist","","", listOf(TrackModel("trackId", "TrackName", "ArtistName", "trackUrl",0,"")))
+        val album = AlbumModel2("album-id","","AlbumName","AlbumArtist","","", listOf(TrackModel2("trackId", "TrackName", "ArtistName", "trackUrl",0,"")))
         Mockito.`when`(service.getAlbum(albumId)).thenReturn(Mono.just(album))
         webTestClient
             .get()

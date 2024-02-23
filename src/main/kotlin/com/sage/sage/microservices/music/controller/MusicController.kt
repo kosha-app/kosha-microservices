@@ -28,7 +28,7 @@ class MusicController(private val musicService: MusicService) {
     }
 
     @GetMapping("/album/{albumId}")
-    fun getAlbum(@PathVariable albumId: String): Mono<AlbumModel> {
+    fun getAlbum(@PathVariable albumId: String): Mono<AlbumModel2> {
         return musicService.getAlbum(albumId)
     }
 

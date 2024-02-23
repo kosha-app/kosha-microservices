@@ -33,11 +33,11 @@ class MusicRepository(
         return Mono.empty()
     }
 
-    override fun getAlbum(albumId: String): Mono<AlbumModel> {
+    override fun getAlbum(albumId: String): Mono<AlbumModel2> {
         val response = azureInitializer.albumContainer?.readItem(
             albumId,
             PartitionKey(albumKey),
-            AlbumModel::class.java
+            AlbumModel2::class.java
         )
 
         return Mono.justOrEmpty(response?.item)
