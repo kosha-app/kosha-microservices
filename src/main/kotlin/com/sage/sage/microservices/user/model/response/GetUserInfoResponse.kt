@@ -8,12 +8,12 @@ class GetUserInfoResponse(
     val dateOfBirth: String? = null,
     val gender: String? = null,
     val cellNumber: String? = null,
-    val message: String? = null
+    val devices: List<DeviceModel>? = null
 ) {
     companion object {
         fun User.toGetUserInfo(): GetUserInfoResponse {
             return GetUserInfoResponse(
-                name, email, dateOfBirth, gender, cellNumber
+                name, email, dateOfBirth, gender, cellNumber, devices
             )
         }
     }

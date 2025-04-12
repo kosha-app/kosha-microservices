@@ -6,7 +6,6 @@ import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
-import com.sage.sage.microservices.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*

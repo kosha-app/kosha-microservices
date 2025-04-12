@@ -1,5 +1,14 @@
 # application.yml
 
-spring:
-  profiles:
-    active: dev
+#spring:
+#  profiles:
+#    active: dev
+#
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/kosha_db
+#    username: kosha
+#    password: Bello@09
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto:create

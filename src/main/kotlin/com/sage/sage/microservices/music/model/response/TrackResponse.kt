@@ -9,5 +9,5 @@ class PopularArtistResponse(@JsonProperty("artists") val artists: List<Artist>)
 
 class Artist(
     @JsonProperty("artistName") val artistName: String,
-    @JsonProperty("totalStreams") val totalStreams: Int
+    @JsonProperty("totalStreams") val totalStreams: Int,
 )

@@ -3,17 +3,21 @@ package com.sage.sage.microservices.music.service
 import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
 import com.sage.sage.microservices.exception.exceptionobjects.McaHttpResponseCode
 import com.sage.sage.microservices.music.model.request.*
+import com.sage.sage.microservices.music.model.request.AlbumModel2.Companion.toMono
+import com.sage.sage.microservices.music.model.request.TrackModel.Companion.toTrackModel2
 import com.sage.sage.microservices.music.model.response.*
-import com.sage.sage.microservices.music.repository.IMusicRepository
+import com.sage.sage.microservices.music.repository.MusicRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Service
-class MusicService(private val musicRepository: IMusicRepository) {
+class MusicService(
+    private val musicRepository: MusicRepository,
+) {
 
     fun getTrack(trackId: String): Mono<TrackModel2> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .flatMap { album -> Flux.fromIterable(album.tracks) }
             .filter { track -> track.id.equals(trackId) }
             .switchIfEmpty(Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_ITEM_NOT_FOUND_EXCEPTION, "")))
@@ -21,7 +25,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
     }
 
     fun trackPlayed(trackId: String): Mono<Void> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .flatMapIterable { album ->
                 album.tracks.map { track ->
                     Pair(track, album.id)
@@ -35,17 +39,11 @@ class MusicService(private val musicRepository: IMusicRepository) {
                     Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_ITEM_NOT_FOUND_EXCEPTION, ""))
                 }
             )
-            .flatMap { pair ->
-                musicRepository.updateTrackPlayed(
-                    albumId = pair.second.toString(),
-                    trackId = pair.first.id.toString()
-                )
-            }
             .then()
     }
 
     fun getMostPlayedArtists(): Mono<PopularArtistResponse> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .flatMapIterable { album -> album.tracks }
             .flatMap { track -> Flux.fromIterable(track.trackArtist.toString().split(","))
                 .map { it.trim() }
@@ -63,7 +61,7 @@ class MusicService(private val musicRepository: IMusicRepository) {
                 val mappedList = popularArtists.map { artist ->
                    Artist(
                        artistName = artist.first,
-                       totalStreams = artist.second
+                       totalStreams = artist.second,
                    )
                 }
                 PopularArtistResponse(mappedList.take(10))
@@ -72,17 +70,17 @@ class MusicService(private val musicRepository: IMusicRepository) {
 
 
     fun getArtistPopularTracks(artistName: String): Mono<ArtistPopularTracksResponse> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .flatMapIterable { album ->
                 album.tracks.map { track ->
-                    Pair(track, album.coverUrl)
+                    Triple(track, album.coverUrl, album.id)
                 }
             }
-            .filter { (track, _) ->
+            .filter { (track, _, _) ->
                 track.trackArtist?.split(",")?.find { artist -> artist.trim() == artistName } != null
                         || track.trackFeatures?.split(",")?.find { artist -> artist.trim() == artistName } != null
             }
-            .map { (track, coverUrl) ->
+            .map { (track, coverUrl, albumId) ->
                 TrackModel2(
                     id = track.id,
                     trackName = track.trackName,
@@ -90,7 +88,8 @@ class MusicService(private val musicRepository: IMusicRepository) {
                     trackUrl = track.trackUrl,
                     coverUrl = coverUrl,
                     played = track.played,
-                    trackFeatures = track.trackFeatures
+                    trackFeatures = track.trackFeatures,
+                    albumId = albumId
                 )
             }
             .collectList()
@@ -102,16 +101,26 @@ class MusicService(private val musicRepository: IMusicRepository) {
     }
 
     fun createAlbum(albumRequest: AlbumModel): Mono<Void> {
-        return musicRepository.createAlbum(albumRequest)
+        musicRepository.save(AlbumModel2(
+            id = albumRequest.id,
+            albumName = albumRequest.albumName,
+            albumArtist = albumRequest.albumArtist,
+            releaseDate = albumRequest.releaseDate,
+            coverUrl = albumRequest.coverUrl,
+            tracks = albumRequest.tracks.map { trackModel ->
+                trackModel.toTrackModel2(albumId = albumRequest.id, coverUrl = albumRequest.coverUrl)
+            },
+        ))
+        return Mono.empty()
     }
 
     fun getAlbum(albumId: String): Mono<AlbumModel2> {
-        return musicRepository.getAlbum(albumId)
+        return musicRepository.getReferenceById(albumId).toMono()
             .switchIfEmpty(Mono.error(KoshaGatewayException(McaHttpResponseCode.ERROR_ITEM_NOT_FOUND_EXCEPTION, "")))
     }
 
     fun searchAlbums(query: String): Mono<SearchAlbumsResponse> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .filter { album ->
                 (album.albumName.contains(query, ignoreCase = true) || album.albumArtist.contains(
                     query,
@@ -124,25 +133,26 @@ class MusicService(private val musicRepository: IMusicRepository) {
     }
 
     fun searchTrack(query: String): Mono<SearchTracksResponse> {
-        return musicRepository.getAllAlbums()
+        return Flux.fromIterable(musicRepository.findAll())
             .flatMapIterable { album ->
                 album.tracks.map { track ->
-                    Pair(track, album.coverUrl)
+                    Triple(track, album.coverUrl, album.id)
                 }
             }
-            .filter { (track, _) ->
+            .filter { (track, _, _) ->
                 track.trackName?.contains(query, ignoreCase = true) == true ||
                         track.trackArtist?.contains(query, ignoreCase = true) == true ||
                         track.trackFeatures?.contains(query, ignoreCase = true) == true
             }
-            .map { (track, coverUrl) ->
+            .map { (track, coverUrl, albumId) ->
                 TrackModel2(
                     id = track.id,
                     trackName = track.trackName,
                     trackArtist = track.trackArtist,
                     trackUrl = track.trackUrl,
                     coverUrl = coverUrl,
-                    played = track.played
+                    played = track.played,
+                    albumId = albumId,
                 )
             }
             .collectList()

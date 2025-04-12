@@ -2,6 +2,7 @@ package com.sage.sage.microservices.device.controller
 
 import com.sage.sage.microservices.device.service.DeviceService
 import com.sage.sage.microservices.user.model.response.GetDeviceResponse
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -30,5 +31,4 @@ class DeviceController(
     fun logDeviceOut(@PathVariable deviceId: String): Mono<Void> {
         return deviceService.logDeviceOut(deviceId)
     }
-
 }
