@@ -15,7 +15,6 @@ class UserModel(
     val gender: String,
     val cellNumber: String,
     val devices: List<DeviceModel>,
-    var isVerified: Boolean?
 )
 
 class UserRegistrationRequestV2(

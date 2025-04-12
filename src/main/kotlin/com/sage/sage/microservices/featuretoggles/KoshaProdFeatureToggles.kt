@@ -6,5 +6,5 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @ConfigurationProperties(prefix = "features")
 class KoshaProdFeatureToggles {
-    var otpBypass: Boolean = false
+    var otpBypass: Boolean = true
 }

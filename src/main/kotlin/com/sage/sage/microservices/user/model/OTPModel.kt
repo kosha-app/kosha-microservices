@@ -1,10 +1,11 @@
 package com.sage.sage.microservices.user.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
 
+@Entity
 class OTPModel(
-    @JsonProperty("id")val id: String,
-    @JsonProperty("userKey")val userKey: String,
-    @JsonProperty("email")val email: String,
-    @JsonProperty("otp")val otp: String
+    @Id val id: String,
+    val otp: String
 )
