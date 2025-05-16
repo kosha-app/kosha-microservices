@@ -14,15 +14,15 @@ az spring app deploy \
 
 https://sage.redocean-171801c3.centralus.azurecontainerapps.io
 
-### Sequence Diagram
+### 📩 Email OTP Flow (Sequence Diagram)
 
 ```mermaid
 sequenceDiagram
-participant Client
-participant UserService
-participant UserRepository
-participant OtpRepository
-participant JavaMailSender
+    participant Client
+    participant UserService
+    participant UserRepository
+    participant OtpRepository
+    participant JavaMailSender
 
     Client->>UserService: checkEmail(email)
     UserService->>UserRepository: existsByEmail(email)
@@ -34,6 +34,7 @@ participant JavaMailSender
         UserService->>OtpRepository: saveOtp(otp, email)
         UserService-->>Client: CheckEmailResponse(otpId)
     end
+
 
 sequenceDiagram
     participant Client
