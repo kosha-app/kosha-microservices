@@ -48,13 +48,7 @@ jobs:
         with:
           name: java-app
 
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-
       - name: Deploy to Dev
-        id: deploy-to-webapp-dev
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
