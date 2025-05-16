@@ -14,7 +14,7 @@ az spring app deploy \
 
 https://sage.redocean-171801c3.centralus.azurecontainerapps.io
 
-### 📩 Email OTP Flow (Sequence Diagram)
+### Sequence Diagrams
 
 ```mermaid
 sequenceDiagram
@@ -34,8 +34,9 @@ sequenceDiagram
         UserService->>OtpRepository: saveOtp(otp, email)
         UserService-->>Client: CheckEmailResponse(otpId)
     end
+```
 
-
+```mermaid
 sequenceDiagram
     participant Client
     participant UserService
@@ -55,4 +56,4 @@ sequenceDiagram
             UserService-->>Client: Error (incorrect password)
         end
     end
-
+```
