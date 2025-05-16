@@ -31,17 +31,6 @@ jobs:
         run: |
           ./gradlew clean build
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true # optional (default = false)
-          files: ./build/reports/jacoco/test/jacocoTestReport.xml # optional
-        #          flags: unittests # optional
-        #          name: codecov-umbrella # optional
-        #          verbose: true # optional (default = false)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
@@ -65,17 +54,6 @@ jobs:
         id: deploy-to-webapp-dev
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'kosha-app-developer'
-          slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_8ead9e73735140d78780fa303e317f6b }}
-          package: 'sage-microservices-0.0.1-SNAPSHOT.jar'
-
-      - name: Deploy to Prod
-        if: github.ref == 'refs/heads/deploy-to-prod'
-        id: deploy-to-webapp-prod
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'kosha-app'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_73e43f36d62645229e251decf371cbdb }}
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: 'sage-microservices-0.0.1-SNAPSHOT.jar'
