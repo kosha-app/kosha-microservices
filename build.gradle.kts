@@ -7,6 +7,7 @@ plugins {
     id("jacoco")
     kotlin("jvm") version "1.8.22"
     kotlin("plugin.spring") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.jpa") version "1.8.22"
 }
 
 val exclusions = listOf(
@@ -45,12 +46,13 @@ dependencies {
     implementation("com.azure:azure-communication-email:1.0.2")
     compileOnly("org.projectlombok:lombok:1.18.30")
 
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 //    implementation("org.springframework.boot:spring-context-support:5.2.8.RELEASE")
     implementation("org.springframework.boot:spring-boot-starter-mail")
-
-
-
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.3.2")
 
     implementation("com.google.firebase:firebase-admin:9.2.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")

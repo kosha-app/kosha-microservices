@@ -1,11 +1,9 @@
 package com.sage.sage.microservices.device.service
 
-import com.sage.sage.microservices.device.repository.IDeviceRepository
 import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.response.DeviceModel
 import com.sage.sage.microservices.user.model.response.DeviceRequest
-import com.sage.sage.microservices.user.repository.UserRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
