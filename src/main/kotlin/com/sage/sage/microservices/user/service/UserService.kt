@@ -27,6 +27,15 @@ class UserService(
     private val featureToggles: KoshaProdFeatureToggles
 ) {
 
+    /**
+     * Registers a new user with the provided information and device details.
+     *
+     * Creates a user record with a unique identifier and saves it to the repository.
+     * The user's device information is also associated during registration.
+     *
+     * @param request The registration details for the new user.
+     * @return A Mono that completes when the user has been successfully created.
+     */
     fun create(request: UserRegistrationRequestV2): Mono<Void> {
         val userId = UUID.randomUUID().toString()
         return userRepository.save(
@@ -46,6 +55,14 @@ class UserService(
     }
 
 
+    /**
+     * Checks if the provided email is already registered and, if not, generates and sends a one-time password (OTP) to the email address.
+     *
+     * If the email is already associated with an existing user, returns an error. Otherwise, generates a six-digit OTP, sends it to the specified email, saves the OTP, and returns a response containing the OTP record ID.
+     *
+     * @param email The email address to check and send the OTP to.
+     * @return A Mono emitting a response with the OTP record ID if the email is not registered.
+     */
     fun checkEmail(email: String): Mono<CheckEmailResponse> {
         val exists = userRepository.existsByEmail(email)
         return if (exists) {
@@ -66,6 +83,12 @@ class UserService(
         }
     }
 
+    /**
+     * Sends a verification email containing the provided OTP to the specified email address.
+     *
+     * @param otp The one-time password to include in the email.
+     * @param email The recipient's email address.
+     */
     fun sendOtp(otp: String, email: String) {
         val message = SimpleMailMessage()
         message.from = "noreply@kosha.com"
@@ -75,6 +98,11 @@ class UserService(
         emailSender.send(message)
     }
 
+    /**
+     * Generates a random 6-digit numeric one-time password (OTP).
+     *
+     * @return A string containing a randomly generated 6-digit OTP.
+     */
     private fun generateSixDigitOTP(): String {
         val otpLength = 6
         val otpBuilder = StringBuilder()
@@ -87,11 +115,23 @@ class UserService(
         return otpBuilder.toString()
     }
 
+    /**
+     * Saves an OTP with the specified ID and value, and returns the OTP record's ID.
+     *
+     * @param id The unique identifier for the OTP record.
+     * @param otp The one-time password to be saved.
+     * @return A Mono emitting the ID of the saved OTP record.
+     */
     private fun saveOtp(id: String, otp: String): Mono<String> {
         val otpModel = otpRepository.save(OTPModel(id, otp))
         return Mono.just(otpModel.id)
     }
 
+    /**
+     * Verifies a user's OTP using the provided OTP record ID and verification request.
+     *
+     * Returns an empty Mono if verification succeeds; otherwise, emits an error if the OTP does not match.
+     */
     fun otpVerification(id: String, request: UserVerificationRequest): Mono<Void> {
         return verifyOtp(id, request).flatMap { isVerified ->
             if (isVerified) {
@@ -102,6 +142,15 @@ class UserService(
         }
     }
 
+    /**
+     * Verifies whether the provided OTP matches the stored OTP for the given ID.
+     *
+     * If the OTP bypass feature is enabled, verification also succeeds if the provided OTP is "123456".
+     *
+     * @param id The identifier of the OTP record.
+     * @param request The verification request containing the OTP to check.
+     * @return A Mono emitting true if the OTP is valid, false otherwise.
+     */
     private fun verifyOtp(id: String, request: UserVerificationRequest): Mono<Boolean> {
         val otp = otpRepository.getReferenceById(id)
 
@@ -112,6 +161,14 @@ class UserService(
         }
     }
 
+    /**
+     * Authenticates a user by email and password, adds a new device to the user's device list, and returns a success response.
+     *
+     * Returns an error if the user does not exist or if the password is incorrect.
+     *
+     * @param userSignInRequest The sign-in request containing user credentials and device information.
+     * @return A Mono emitting a success response if authentication succeeds, or an error if authentication fails.
+     */
     fun signUserIn(userSignInRequest: UserSignInRequest): Mono<DefaultResponse> {
         if (userRepository.existsByEmail(userSignInRequest.email)) {
             return userRepository.findByEmail(userSignInRequest.email).get().toMono().flatMap { user ->
@@ -145,6 +202,12 @@ class UserService(
         }
     }
 
+    /**
+     * Retrieves user information for the specified user ID.
+     *
+     * @param userId The unique identifier of the user.
+     * @return A Mono emitting the user's information as a GetUserInfoResponse.
+     */
     fun getUserInfo(userId: String): Mono<GetUserInfoResponse> {
         return userRepository.getReferenceById(userId).toMono()
             .flatMap { user ->
@@ -152,6 +215,12 @@ class UserService(
             }
     }
 
+    /**
+     * Generates a new six-digit OTP, sends it to the specified email address, saves the OTP, and returns its record ID.
+     *
+     * @param email The recipient's email address.
+     * @return A Mono emitting the ID of the saved OTP record.
+     */
     fun resendOtp(email: String): Mono<String> {
         val otp = generateSixDigitOTP()
         sendOtp(otp, email)

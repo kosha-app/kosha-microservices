@@ -21,6 +21,12 @@ import java.util.concurrent.ExecutionException
 class UserController(private val userService: UserService)   {
 
 
+    /**
+     * Registers a new user with the provided registration details.
+     *
+     * @param userRegistrationRequest The registration information for the new user.
+     * @return A Mono that completes when the user registration process finishes.
+     */
     @PostMapping("/register")
     fun registerUser( @RequestBody userRegistrationRequest: UserRegistrationRequestV2): Mono<Void> {
         return userService.create(userRegistrationRequest)
@@ -46,6 +52,12 @@ class UserController(private val userService: UserService)   {
         return userService.otpVerification(id, request)
     }
 
+    /**
+     * Retrieves profile information for the specified user.
+     *
+     * @param userId The unique identifier of the user whose profile is requested.
+     * @return A Mono emitting the user's profile information.
+     */
     @GetMapping("/profile/{userId}")
     fun getUserInfo(@PathVariable userId: String): Mono<GetUserInfoResponse>{
         return userService.getUserInfo(userId)

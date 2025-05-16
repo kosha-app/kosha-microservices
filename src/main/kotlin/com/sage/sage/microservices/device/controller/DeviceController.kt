@@ -27,6 +27,14 @@ class DeviceController(
         return deviceService.getDevice(deviceId)
     }
 
+    /**
+     * Logs out the specified device.
+     *
+     * Initiates a logout operation for the device identified by the given device ID.
+     *
+     * @param deviceId The unique identifier of the device to log out.
+     * @return A Mono that completes when the logout operation is finished.
+     */
     @PutMapping("/logout/{deviceId}")
     fun logDeviceOut(@PathVariable deviceId: String): Mono<Void> {
         return deviceService.logDeviceOut(deviceId)

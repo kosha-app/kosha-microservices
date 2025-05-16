@@ -40,6 +40,11 @@ data class AlbumModel2(
     val tracks: List<TrackModel2>
 ){
     companion object{
+        /**
+         * Wraps this AlbumModel2 instance in a Reactor Mono.
+         *
+         * @return a Mono emitting this AlbumModel2 instance.
+         */
         fun AlbumModel2.toMono(): Mono<AlbumModel2>{
             return Mono.just(
                 AlbumModel2(

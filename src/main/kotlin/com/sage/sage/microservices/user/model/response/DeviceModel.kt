@@ -21,6 +21,11 @@ class DeviceModel (
     val userId: String
 ){
     companion object {
+        /**
+         * Wraps this DeviceModel instance in a Reactor Mono.
+         *
+         * @return a Mono emitting a copy of this DeviceModel.
+         */
         fun DeviceModel.toMono(): Mono<DeviceModel> {
             return Mono.just(
                 DeviceModel(

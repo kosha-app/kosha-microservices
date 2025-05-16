@@ -11,6 +11,11 @@ class GetUserInfoResponse(
     val devices: List<DeviceModel>? = null
 ) {
     companion object {
+        /**
+         * Converts a User instance to a GetUserInfoResponse containing user details and associated devices.
+         *
+         * @return A GetUserInfoResponse populated with the user's name, email, date of birth, gender, cell number, and devices.
+         */
         fun User.toGetUserInfo(): GetUserInfoResponse {
             return GetUserInfoResponse(
                 name, email, dateOfBirth, gender, cellNumber, devices

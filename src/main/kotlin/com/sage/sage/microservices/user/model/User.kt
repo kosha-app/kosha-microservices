@@ -27,6 +27,11 @@ class User(
     var devices: List<DeviceModel>
 ) {
     companion object {
+        /**
+         * Wraps this User instance in a Mono publisher.
+         *
+         * @return a Mono emitting a copy of this User.
+         */
         fun User.toMono(): Mono<User> {
             return Mono.just(
                 User(

@@ -15,6 +15,13 @@ class TrackResponse(
     val trackUrl: String?
 ) {
     companion object {
+        /**
+         * Converts a Firestore document snapshot into a TrackResponse object.
+         *
+         * Extracts the document ID and relevant fields ("name", "artist", "url", "features") from the snapshot to populate the TrackResponse properties.
+         *
+         * @return A TrackResponse instance containing the track data from the snapshot.
+         */
         fun DocumentSnapshot.toTrackModel(): TrackResponse {
             return TrackResponse(
                 trackId = id,
@@ -41,6 +48,13 @@ class TrackModel(
     }
 
     companion object {
+        /**
+         * Converts this TrackModel instance to a TrackModel2, adding album and cover information.
+         *
+         * @param albumId The identifier of the album associated with the track.
+         * @param coverUrl The URL of the album cover image.
+         * @return A TrackModel2 instance containing all track data along with album and cover details.
+         */
         fun TrackModel.toTrackModel2(albumId: String, coverUrl: String): TrackModel2{
             return TrackModel2(
                 id = id,
