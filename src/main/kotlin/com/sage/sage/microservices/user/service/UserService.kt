@@ -3,17 +3,15 @@ package com.sage.sage.microservices.user.service
 import com.sage.sage.microservices.exception.exceptionobjects.KoshaGatewayException
 import com.sage.sage.microservices.exception.exceptionobjects.McaHttpResponseCode
 import com.sage.sage.microservices.featuretoggles.KoshaProdFeatureToggles
+import com.sage.sage.microservices.user.email.EmailService
 import com.sage.sage.microservices.user.model.OTPModel
 import com.sage.sage.microservices.user.model.User
 import com.sage.sage.microservices.user.model.User.Companion.toMono
 import com.sage.sage.microservices.user.model.request.*
 import com.sage.sage.microservices.user.model.response.*
 import com.sage.sage.microservices.user.model.response.GetUserInfoResponse.Companion.toGetUserInfo
-import com.sage.sage.microservices.user.repository.EmailTemplateConstants
 import com.sage.sage.microservices.user.repository.OtpRepository
 import com.sage.sage.microservices.user.repository.UserRepository
-import org.springframework.mail.SimpleMailMessage
-import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.util.UUID
@@ -23,7 +21,7 @@ import kotlin.random.Random
 class UserService(
     private val userRepository: UserRepository,
     private val otpRepository: OtpRepository,
-    private val emailSender: JavaMailSender,
+    private val emailService: EmailService,
     private val featureToggles: KoshaProdFeatureToggles
 ) {
 
@@ -66,12 +64,7 @@ class UserService(
     }
 
     fun sendOtp(otp: String, email: String) {
-        val message = SimpleMailMessage()
-        message.from = "noreply@kosha.com"
-        message.setTo(email)
-        message.subject = EmailTemplateConstants.VERIFICATION_EMAIL_SUBJECT
-        message.text = EmailTemplateConstants.VERIFICATION_EMAIL_BODY.format(otp)
-        emailSender.send(message)
+        emailService.sendOtpEmail(email, otp, 5)
     }
 
     private fun generateSixDigitOTP(): String {
@@ -116,10 +109,12 @@ class UserService(
         if (userRepository.existsByEmail(userSignInRequest.email)) {
             return userRepository.findByEmail(userSignInRequest.email).get().toMono().flatMap { user ->
                 if (user.password == userSignInRequest.password) {
-                    val newDeviceList = listOf(DeviceModel(
-                        id = userSignInRequest.deviceId,
-                        userId = user.userId
-                    ))
+                    val newDeviceList = listOf(
+                        DeviceModel(
+                            id = userSignInRequest.deviceId,
+                            userId = user.userId
+                        )
+                    )
 
                     user.devices += newDeviceList
 
