@@ -8,13 +8,13 @@ management:
   endpoint:
     shutdown:
       enabled: true
-#  metrics:
-#    export:
-#      datadog:
-#        enabled: true
-#        api-key: ''
-#        application-name: kosha-microservices-app
-#        step: 30s
+  datadog:
+    metrics:
+      export:
+        api-key: ${DD_API_KEY}
+        enabled: true
+        application-name: kosha-microservices-app
+        step: 30s
     tags:
       env: dev
 
