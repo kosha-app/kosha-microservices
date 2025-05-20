@@ -53,6 +53,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.mariadb.jdbc:mariadb-java-client:3.3.2")
+    implementation("io.micrometer:micrometer-registry-datadog")
 
     implementation("com.google.firebase:firebase-admin:9.2.0")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
