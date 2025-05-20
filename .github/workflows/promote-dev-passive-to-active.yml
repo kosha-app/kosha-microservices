@@ -1,0 +1,25 @@
+name: Promote Dev Green to Blue
+
+on:
+  workflow_dispatch:
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Swap Dev Green to Blue
+        run: |
+          az webapp deployment slot swap \
+            --name kosha-sit \
+            --resource-group kosha \
+            --slot dev-passive \
+            --target-slot dev-active
+
+      - name: Smoke Test Dev Blue Slot
+        run: |
+          curl -f https://myapp-dev.azurewebsites.net/health || exit 1
