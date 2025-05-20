@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_SIT }}
-          slot: green
+          slot: dev-passive
           images: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
