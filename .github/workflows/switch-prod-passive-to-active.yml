@@ -1,0 +1,20 @@
+name: Switch Prod Passive ➡️ Active
+
+on:
+  workflow_dispatch:
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Switch Passive Green ➡️ Active
+        run: |
+          az webapp deployment slot swap \
+            --name kosha-sit \
+            --resource-group kosha \
+            --slot passive

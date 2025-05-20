@@ -1,0 +1,28 @@
+name: Deploy ➡️ Prod Passive
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to promote to production"
+        required: true
+
+env:
+  IMAGE_NAME: kosha-microservices-app
+
+jobs:
+  deploy-prod-passive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Azure Web App for Containers
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_DEV_PASSIVE }}
+          slot-name: passive
+          images: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.event.inputs.image_tag }}
+
+#      - name: Smoke Test Prod Green Slot
+#        run: |
+#          curl -f https://${{ secrets.AZURE_WEBAPP_NAME_PROD }}-green.azurewebsites.net/health || exit 1
