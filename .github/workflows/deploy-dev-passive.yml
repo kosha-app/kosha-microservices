@@ -1,4 +1,4 @@
-name: Deploy to Dev Passive
+name: Deploy to DEV Passive
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Build and deploy Dockerized Spring Boot App to Azure App Service
+name: Pull Request Build
 
 on:
   pull_request:
