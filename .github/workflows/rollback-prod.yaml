@@ -1,4 +1,4 @@
-name: Rollback Prod ➡️ Previous Active
+name: Rollback PROD ➡️ Previous Active
 
 on:
   workflow_dispatch:

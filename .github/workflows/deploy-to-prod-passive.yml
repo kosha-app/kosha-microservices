@@ -1,4 +1,4 @@
-name: Deploy ➡️ Prod Passive
+name: Deploy ➡️ PROD Passive
 
 on:
   workflow_dispatch:
