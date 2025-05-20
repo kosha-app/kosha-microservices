@@ -1,4 +1,4 @@
-name: Promote Dev Green to Blue
+name: Switch Dev Passive ➡️ Active
 
 on:
   workflow_dispatch:
@@ -12,14 +12,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Swap Dev Green to Blue
+      - name: Switch Dev Passive ➡️ Active
         run: |
           az webapp deployment slot swap \
             --name kosha-sit \
             --resource-group kosha \
             --slot dev-passive \
             --target-slot dev-active
-
-      - name: Smoke Test Dev Blue Slot
-        run: |
-          curl -f https://myapp-dev.azurewebsites.net/health || exit 1

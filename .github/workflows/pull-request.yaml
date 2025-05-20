@@ -1,0 +1,24 @@
+name: Build and deploy Dockerized Spring Boot App to Azure App Service
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: zulu
+
+      - name: Build Spring Boot JAR
+        run: ./gradlew clean build

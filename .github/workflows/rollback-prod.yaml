@@ -1,0 +1,21 @@
+name: Rollback Prod ➡️ Previous Active
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rollback-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Switch Back Prod Active ↔️ Passive
+        run: |
+          az webapp deployment slot swap \
+            --name ${{ secrets.AZURE_WEBAPP_NAME_PROD }} \
+            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+            --slot passive
