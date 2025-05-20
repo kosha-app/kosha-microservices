@@ -14,20 +14,54 @@ env:
 
 jobs:
   build-and-push:
-#    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
     outputs:
-      image_tag: ${{ steps.export-tag.outputs.image_tag }}
+      image_tag: ${{ steps.bump-version.outputs.new_version }}
 
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: zulu
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Extract and bump version
+        id: bump-version
+        run: |
+          VERSION_FILE="build.gradle.kts"
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+
+          echo "Last commit message: $COMMIT_MSG"
+
+          CURRENT_VERSION=$(grep '^version\s*=' $VERSION_FILE | cut -d'"' -f2 | sed 's/-SNAPSHOT//')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+          if [[ "$COMMIT_MSG" == *"BREAKING CHANGE"* || "$COMMIT_MSG" == *"!:"* ]]; then
+            ((MAJOR++))
+            MINOR=0
+            PATCH=0
+          elif [[ "$COMMIT_MSG" == feat:* ]]; then
+            ((MINOR++))
+            PATCH=0
+          else
+            ((PATCH++))
+          fi
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          echo "New version: $NEW_VERSION"
+
+          sed -i "s/version = \".*\"/version = \"${NEW_VERSION}\"/" $VERSION_FILE
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "APP_VERSION=${NEW_VERSION}" >> $GITHUB_ENV
+
+          git commit -am "chore: bump version to ${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
+          git push origin HEAD:master --tags
 
       - name: Build Spring Boot JAR
         run: ./gradlew clean build
@@ -36,24 +70,17 @@ jobs:
         run: curl -L -o dd-java-agent.jar https://dtdg.co/latest-java-tracer
 
       - name: Copy JAR for Docker
-        run: cp build/libs/sage-microservices-0.0.1-SNAPSHOT.jar app.jar
-
-      - name: Define Image Tag
-        run: echo "IMAGE_TAG=dev-${GITHUB_SHA}" >> $GITHUB_ENV
-
-      - name: Export Image Tag
-        id: export-tag
-        run: echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+        run: cp build/libs/sage-microservices-*.jar app.jar
 
       - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }} .
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ env.APP_VERSION }}
+
 
   deploy:
     runs-on: ubuntu-latest

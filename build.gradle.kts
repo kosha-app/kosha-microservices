@@ -48,7 +48,6 @@ dependencies {
 
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-//    implementation("org.springframework.boot:spring-context-support:5.2.8.RELEASE")
     implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("mysql:mysql-connector-java:8.0.33")
